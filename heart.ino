@@ -110,35 +110,22 @@ Serial.print(",z:");
 Serial.println(a.acceleration.z, 1);
 
 
+ 
 display.clearDisplay();
 display.setTextSize(1);
 display.setTextColor(1);
-display.setCursor(0,16);
-display.print(pox.getHeartRate());
- 
-display.setTextSize(1);
-display.setTextColor(1);
 display.setCursor(0, 0);
-display.print("Heart BPM");
+display.print("Heart rate: ");
+display.print(pox.getHeartRate());
+display.print("bpm, SpO2: ");
+display.print(pox.getSpO2());
+display.print("%");
  
-display.setTextSize(1);
-display.setTextColor(1);
-display.setCursor(0, 30);
-display.print("Spo2");
- 
-display.setTextSize(1);
-display.setTextColor(1);
-display.setCursor(0,45);
-display.println(pox.getSpO2());
 
 display.setTextSize(1);
 display.setTextColor(1);
-display.setCursor(0, 30);
-display.print("Akselometer: x:");
- 
-display.setTextSize(1);
-display.setTextColor(1);
-display.setCursor(0,45);
+display.setCursor(0, 16);
+display.print("Akselo: x:");
 display.print(a.acceleration.x, 1);
 display.print(",y:");
 display.print(a.acceleration.y, 1);
