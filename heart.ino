@@ -7,6 +7,13 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
 
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Arduino_JSON.h>
+
+const char* ssid = "solo";
+const char* password = "123412345";
+
 
 int plus;
 Adafruit_MPU6050 mpu;
@@ -42,6 +49,17 @@ const unsigned char bitmap[] PROGMEM = {
 
 void setup() {
   Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  Serial.println("Connecting");
+  while(WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+ 
+
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {  // Address 0x3C for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     for (;;)
@@ -190,6 +208,8 @@ int modeValueOxy = calculateMode(sensorDataOxy, dataSizeOxy);
     }
     display.println("%");
 
+
+
     // mpu
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
@@ -202,8 +222,45 @@ int modeValueOxy = calculateMode(sensorDataOxy, dataSizeOxy);
     display.print(",z:");
     display.println(a.acceleration.z, 1);
     display.display();
+         String serverName2 = "http://127.0.0.1:3000/senddatatosps?hr="+String(modeValueHeart)+"&spo2="+String(modeValueOxy)+"&akselox="+String(a.acceleration.x)+"&akseloy="+String(a.acceleration.y)+"&akseloz="+String(a.acceleration.z);
 
+        String sensorReadings = httpGETRequest(serverName2);
+      Serial.println(sensorReadings);        
+      Serial.println(serverName2);        
+  
   }
+}
+
+
+
+String httpGETRequest(String serverName) {
+  WiFiClient client;
+  HTTPClient http;
+    
+  // Your Domain name with URL path or IP address with path
+  http.begin(client, serverName);
+  
+  // If you need Node-RED/server authentication, insert user and password below
+  //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+  
+  // Send HTTP POST request
+  int httpResponseCode = http.GET();
+  
+  String payload = "{}"; 
+  
+  if (httpResponseCode>0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+    payload = http.getString();
+  }
+  else {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+  }
+  // Free resources
+  http.end();
+
+  return payload;
 }
 
 
