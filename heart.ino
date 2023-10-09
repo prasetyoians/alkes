@@ -18,7 +18,12 @@ int lastState = LOW;  // the previous state from the input pin
 int currentState;     // the current reading from the input pin
 
 
-#define REPORTING_PERIOD_MS 100
+#define REPORTING_PERIOD_MS 200
+
+
+int sensorDataHeart[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
+int sensorDataOxy[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
+
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
 
 PulseOximeter pox;
@@ -100,34 +105,64 @@ void loop() {
     // int posX = 0, posY = 0, posZ = 0;
     //
 
-    // baca pox
+  int aa = 0 ;
+ int bb =0;
+    // baca pox    
     for (int x = 0; x < REPORTING_PERIOD_MS; x++) {
-      pox.update();
+   pox.update();
 
-      int aa = pox.getSpO2();
-      int bb = pox.getHeartRate();
+       aa = pox.getSpO2();
+      bb = pox.getHeartRate();
+      
       if (aa > 0 && bb > 0) {
         countOxy++;
         oxy = oxy + aa;
         heart = heart + bb;
         Serial.print(".");
+        sensorDataHeart[x] = bb;
+        sensorDataOxy[x] = aa;
+
       }
       delay(REPORTING_PERIOD_MS / 2);
     }
 
+  int dataSizeHeart = sizeof(sensorDataHeart) / sizeof(sensorDataHeart[0]);
+  int dataSizeOxy = sizeof(sensorDataOxy) / sizeof(sensorDataOxy[0]);
+
+int modeValueHeart = calculateMode(sensorDataHeart, dataSizeHeart);
+int modeValueOxy = calculateMode(sensorDataOxy, dataSizeOxy);
+
+  // Menampilkan hasil modus di Serial Monitor
+ 
+  for (int i = 0; i < REPORTING_PERIOD_MS; i++) {
+    Serial.print("Data ");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(sensorDataHeart[i]);
+  }
+  
+  Serial.print("Modus dari data heart adalah: ");
+  Serial.println(modeValueHeart);
+
+  
+
     display.clearDisplay();
     Serial.println("");
     Serial.print("hr: ");
-    if (heart > 0) {
-      Serial.print(heart / countOxy);
+    if (bb > 0) {
+      Serial.print("hr: ");
+      Serial.println(heart);
+      Serial.print("modus: ");
+
+      Serial.print(modeValueHeart);
     } else {
       Serial.print("");
     }
     Serial.println("BPM");
 
     Serial.print("oxy: ");
-    if (oxy > 0) {
-      Serial.print(oxy / countOxy);
+    if (aa > 0) {
+      Serial.print(modeValueOxy);
     } else {
       Serial.print("");
     }
@@ -140,32 +175,66 @@ void loop() {
 
     display.println("");
     display.print("hr: ");
-    if (heart > 0) {
-      Serial.print(heart / countOxy);
+    if (bb > 0) {
+      display.print(modeValueHeart);
     } else {
-      Serial.print("");
+      display.print("");
     }
     display.println("BPM");
 
     display.print("oxy: ");
-    if (oxy > 0) {
-      Serial.print(oxy / countOxy);
+    if (aa > 0) {
+      display.print(modeValueOxy);
     } else {
-      Serial.print("");
+      display.print("");
     }
     display.println("%");
-    display.display();
 
     // mpu
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
 
     display.setCursor(0, 16);
-    Serial.print("Akselo: x:");
-    Serial.print(a.acceleration.x, 1);
-    Serial.print(",y:");
-    Serial.print(a.acceleration.y, 1);
-    Serial.print(",z:");
-    Serial.println(a.acceleration.z, 1);
+    display.print("Akselo: x:");
+    display.print(a.acceleration.x, 1);
+    display.print(",y:");
+    display.print(a.acceleration.y, 1);
+    display.print(",z:");
+    display.println(a.acceleration.z, 1);
+    display.display();
+
   }
+}
+
+
+int calculateMode(int data[], int dataSize) {
+  // Membuat array untuk menghitung frekuensi kemunculan setiap elemen
+  int counts[dataSize];
+
+  // Mengisi array counts dengan 0
+  for (int i = 0; i < dataSize; i++) {
+    counts[i] = 0;
+  }
+
+  // Menghitung frekuensi kemunculan setiap elemen
+  for (int i = 0; i < dataSize; i++) {
+    for (int j = 0; j < dataSize; j++) {
+      if (data[j] == data[i]) {
+        counts[i]++;
+      }
+    }
+  }
+
+  // Mencari elemen dengan frekuensi kemunculan tertinggi (modus)
+  int maxCount = 0;
+  int modeValue = -1;
+
+  for (int i = 0; i < dataSize; i++) {
+    if (counts[i] > maxCount) {
+      maxCount = counts[i];
+      modeValue = data[i];
+    }
+  }
+
+  return modeValue;
 }
