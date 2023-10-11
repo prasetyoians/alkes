@@ -7,7 +7,7 @@
 #include <Adafruit_Sensor.h>
 #include <NTPClient.h>
 
-
+#include <WiFiManager.h> 
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
@@ -44,23 +44,28 @@ PulseOximeter pox;
 uint32_t tsLastReport = 0;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org",25200); // Gunakan server NTP yang tersedia
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200);  // Gunakan server NTP yang tersedia
 
 
 
 String data = "";
 void setup() {
   Serial.begin(115200);
-  WiFi.begin(ssid, password);
-  Serial.println("Connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
+  // WiFi.begin(ssid, password);
+  // Serial.println("Connecting");
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  // Serial.println("");
+  // Serial.print("Connected to WiFi network with IP Address: ");
+  // Serial.println(WiFi.localIP());
+WiFiManager wifiManager;
 
+  // Start WiFiManager for configuration
+  wifiManager.resetSettings();
+  
+  wifiManager.autoConnect("ALKES"); // "AutoConnectAP" is the name of the access point
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {  // Address 0x3C for 128x64
     Serial.println(F("SSD1306 allocation failed"));
@@ -86,17 +91,17 @@ void setup() {
   display.setTextColor(1);
   display.setCursor(0, 0);
 
-    timeClient.begin();
-      timeClient.update();
+  timeClient.begin();
+  timeClient.update();
 
 
   display.println("Initializing pulse oximeter..");
-  
+
   display.setTextSize(2);
   display.println(timeClient.getFormattedTime());
   display.display();
 
-  
+
   Serial.print("Initializing pulse oximeter..");
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(BUTTON_ATAS, INPUT_PULLUP);
@@ -253,7 +258,6 @@ void loop() {
         Serial.print("modus: ");
 
 
-#include <NTPClient.h>
         Serial.print(modeValueHeart);
       } else {
         Serial.print("");
@@ -303,7 +307,7 @@ void loop() {
 
         aa = pox.getSpO2();
 
-        if (aa > 0 ) {
+        if (aa > 0) {
           countOxy++;
           oxy = oxy + aa;
           Serial.print(".");
@@ -312,17 +316,17 @@ void loop() {
         delay(REPORTING_PERIOD_MS / 2);
       }
 
-     
+
       int dataSizeOxy = sizeof(sensorDataOxy) / sizeof(sensorDataOxy[0]);
 
-    
+
       int modeValueOxy = calculateMode(sensorDataOxy, dataSizeOxy);
 
       // Menampilkan hasil modus di Serial Monitor
 
       display.clearDisplay();
       Serial.println("");
-     
+
       Serial.print("oxy: ");
       if (aa > 0) {
         Serial.print(modeValueOxy);
