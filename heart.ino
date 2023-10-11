@@ -5,6 +5,8 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
+#include <NTPClient.h>
+
 
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -17,7 +19,7 @@ const char* password = "123412345";
 int plus;
 Adafruit_MPU6050 mpu;
 
-int menuOption = 0; // Opsi menu saat ini
+int menuOption = 0;  // Opsi menu saat ini
 
 
 #define BUTTON_PIN 21    // GIOP21 pin connected to button
@@ -41,6 +43,8 @@ PulseOximeter pox;
 
 uint32_t tsLastReport = 0;
 
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org",25200); // Gunakan server NTP yang tersedia
 
 
 
@@ -82,8 +86,17 @@ void setup() {
   display.setTextColor(1);
   display.setCursor(0, 0);
 
+    timeClient.begin();
+      timeClient.update();
+
+
   display.println("Initializing pulse oximeter..");
+  
+  display.setTextSize(2);
+  display.println(timeClient.getFormattedTime());
   display.display();
+
+  
   Serial.print("Initializing pulse oximeter..");
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(BUTTON_ATAS, INPUT_PULLUP);
@@ -93,72 +106,72 @@ void setup() {
 
 
 void displayMenu() {
-  
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setTextColor(SSD1306_WHITE);
-      display.setCursor(0, 0);
-      
-  
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+
+
   switch (menuOption) {
-    case 0:    
-    
+    case 0:
+
       display.println("--> baca hr aja");
 
-      
+
       display.println("baca spo2 aja");
-      
-    
+
+
       display.println("baca akselo aja");
 
-    
+
       display.println("baca semua aja");
       break;
     case 1:
-      
-     
+
+
       display.println("baca hr aja");
 
-      
+
       display.println("--> baca spo2 aja");
-      
-   
+
+
       display.println("baca akselo aja");
 
-     
+
       display.println("baca semua aja");
       break;
     case 2:
-      
-     
+
+
       display.println("baca hr aja");
 
-     
+
       display.println("baca spo2 aja");
-    
+
       display.println("--> baca akselo aja");
 
-     
+
       display.println("baca semua aja");
       break;
     case 3:
-      
-    
+
+
       display.println("baca hr aja");
 
-      
+
       display.println("baca spo2 aja");
-      
-     
+
+
       display.println("baca akselo aja");
 
-    
+
       display.println("-->baca semua aja");
-      
+
       break;
   }
 
-  
+
 
   display.display();
 }
@@ -189,16 +202,168 @@ void loop() {
     // Contoh:
     if (menuOption == 0) {
       // Aksi yang terkait dengan opsi pertama
-      // etwin ubah kene
+      while (!pox.begin()) {
+        Serial.println("FAILED");
+      }
+      display.clearDisplay();
+      Serial.println("Counting...");
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+      display.println("Counting...");
+      display.display();
+      data = "";
+      int heart = 0;
+      int bb = 0;
+
+      for (int x = 0; x < REPORTING_PERIOD_MS; x++) {
+        pox.update();
+
+        bb = pox.getHeartRate();
+
+        if (bb > 0) {
+          heart = heart + bb;
+          Serial.print(".");
+          sensorDataHeart[x] = bb;
+        }
+        delay(REPORTING_PERIOD_MS / 2);
+      }
+
+      int dataSizeHeart = sizeof(sensorDataHeart) / sizeof(sensorDataHeart[0]);
+      int modeValueHeart = calculateMode(sensorDataHeart, dataSizeHeart);
+
+      // Menampilkan hasil modus di Serial Monitor
+      for (int i = 0; i < REPORTING_PERIOD_MS; i++) {
+        Serial.print("Data ");
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(sensorDataHeart[i]);
+      }
+
+      Serial.print("Modus dari data heart adalah: ");
+      Serial.println(modeValueHeart);
+
+      ///serial
+      display.clearDisplay();
+      Serial.println("");
+      Serial.print("hr: ");
+      if (bb > 0) {
+        Serial.print("hr: ");
+        Serial.println(heart);
+        Serial.print("modus: ");
+
+
+#include <NTPClient.h>
+        Serial.print(modeValueHeart);
+      } else {
+        Serial.print("");
+      }
+      Serial.println("BPM");
+
+      ///display
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+
+
+      display.print("hr: ");
+      if (bb > 0) {
+        display.print(modeValueHeart);
+      } else {
+        display.print("");
+      }
+      display.println("BPM");
+      display.display();
 
     } else if (menuOption == 1) {
-      // etwin ubah kene
-      
+      while (!pox.begin()) {
+        Serial.println("FAILED");
+      }
+
+
+      display.clearDisplay();
+      Serial.println("Counting...");
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+      display.println("Counting...");
+      display.display();
+      data = "";
+
+      int oxy = 0, countOxy = 0;
+
+      // int posX = 0, posY = 0, posZ = 0;
+      //
+
+      int aa = 0;
+      // baca pox
+      for (int x = 0; x < REPORTING_PERIOD_MS; x++) {
+        pox.update();
+
+        aa = pox.getSpO2();
+
+        if (aa > 0 ) {
+          countOxy++;
+          oxy = oxy + aa;
+          Serial.print(".");
+          sensorDataOxy[x] = aa;
+        }
+        delay(REPORTING_PERIOD_MS / 2);
+      }
+
+     
+      int dataSizeOxy = sizeof(sensorDataOxy) / sizeof(sensorDataOxy[0]);
+
+    
+      int modeValueOxy = calculateMode(sensorDataOxy, dataSizeOxy);
+
+      // Menampilkan hasil modus di Serial Monitor
+
+      display.clearDisplay();
+      Serial.println("");
+     
+      Serial.print("oxy: ");
+      if (aa > 0) {
+        Serial.print(modeValueOxy);
+      } else {
+        Serial.print("");
+      }
+      Serial.println("%");
+
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+      display.print("oxy: ");
+      if (aa > 0) {
+        display.print(modeValueOxy);
+      } else {
+        display.print("");
+      }
+      display.println("%");
+      display.display();
+
     } else if (menuOption == 2) {
-      // nissa ubah kene
-   
-   
-      
+      sensors_event_t a, g, temp;
+      mpu.getEvent(&a, &g, &temp);
+
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+
+      display.print("Akselo: x:");
+      display.println(a.acceleration.x, 1);
+      display.print(",y:");
+      display.println(a.acceleration.y, 1);
+      display.print(",z:");
+      display.println(a.acceleration.z, 1);
+      display.display();
+
+      delay(100);
+
+
     } else if (menuOption == 3) {
 
 
@@ -290,8 +455,6 @@ void loop() {
       display.setTextSize(1);
       display.setTextColor(1);
       display.setCursor(0, 0);
-
-      display.println("");
       display.print("hr: ");
       if (bb > 0) {
         display.print(modeValueHeart);
@@ -329,7 +492,6 @@ void loop() {
       Serial.println(serverName2);
     }
   }
-
 }
 
 
@@ -396,4 +558,3 @@ int calculateMode(int data[], int dataSize) {
 
   return modeValue;
 }
-
