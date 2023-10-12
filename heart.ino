@@ -7,7 +7,7 @@
 #include <Adafruit_Sensor.h>
 #include <NTPClient.h>
 
-#include <WiFiManager.h> 
+#include <WiFiManager.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
@@ -60,12 +60,12 @@ void setup() {
   // Serial.println("");
   // Serial.print("Connected to WiFi network with IP Address: ");
   // Serial.println(WiFi.localIP());
-WiFiManager wifiManager;
+  WiFiManager wifiManager;
 
   // Start WiFiManager for configuration
-  wifiManager.resetSettings();
-  
-  wifiManager.autoConnect("ALKES"); // "AutoConnectAP" is the name of the access point
+  // wifiManager.resetSettings();
+
+  wifiManager.autoConnect("ALKES");  // "AutoConnectAP" is the name of the access point
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {  // Address 0x3C for 128x64
     Serial.println(F("SSD1306 allocation failed"));
@@ -95,7 +95,7 @@ WiFiManager wifiManager;
   timeClient.update();
 
 
-  display.println("Initializing pulse oximeter..");
+  display.println("TEKAN APAPUN UNTUK KE MENU");
 
   display.setTextSize(2);
   display.println(timeClient.getFormattedTime());
@@ -121,57 +121,78 @@ void displayMenu() {
   switch (menuOption) {
     case 0:
 
-      display.println("--> baca hr aja");
+      display.println("--> Heart Rate");
 
 
-      display.println("baca spo2 aja");
+      display.println("SPO2");
 
 
-      display.println("baca akselo aja");
+      display.println("Akselerasi");
 
 
-      display.println("baca semua aja");
+      display.println("Semua Data");
+      display.println("Beranda");
       break;
     case 1:
 
 
-      display.println("baca hr aja");
+      display.println("Heart Rate");
 
 
-      display.println("--> baca spo2 aja");
+      display.println("--> SPO2");
 
 
-      display.println("baca akselo aja");
+      display.println("Akselerasi");
 
 
-      display.println("baca semua aja");
+      display.println("Semua Data");
+      display.println("Beranda");
+
       break;
     case 2:
 
 
-      display.println("baca hr aja");
+      display.println("Heart Rate");
 
 
-      display.println("baca spo2 aja");
+      display.println("SPO2");
 
-      display.println("--> baca akselo aja");
+      display.println("--> Akselerasi");
 
 
-      display.println("baca semua aja");
+      display.println("Semua Data");
+      display.println("Beranda");
+
       break;
     case 3:
 
 
-      display.println("baca hr aja");
+      display.println("Heart Rate");
 
 
-      display.println("baca spo2 aja");
+      display.println("SPO2");
 
 
-      display.println("baca akselo aja");
+      display.println("Akselerasi");
 
 
-      display.println("-->baca semua aja");
+      display.println("-->Semua Data");
+      display.println("Beranda");
+
+
+      break;
+    case 4:
+
+
+      display.println("SPO2");
+
+
+      display.println("Akselerasi");
+
+
+      display.println("Semua Data");
+      display.println("-->Beranda");
+
 
       break;
   }
@@ -187,7 +208,7 @@ void loop() {
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
     if (menuOption < 0) {
-      menuOption = 3;  // Jumlah opsi menu minus satu
+      menuOption = 4;  // Jumlah opsi menu minus satu
     }
     displayMenu();
     delay(200);  // Hindari bouncing tombol
@@ -195,7 +216,7 @@ void loop() {
 
   if (digitalRead(BUTTON_BAWAH) == LOW) {
     menuOption++;
-    if (menuOption > 3) {
+    if (menuOption > 4) {
       menuOption = 0;
     }
     displayMenu();
@@ -363,9 +384,10 @@ void loop() {
       display.println(a.acceleration.y, 1);
       display.print(",z:");
       display.println(a.acceleration.z, 1);
+      delay(100);
       display.display();
 
-      delay(100);
+  //    
 
 
     } else if (menuOption == 3) {
@@ -494,6 +516,23 @@ void loop() {
       String sensorReadings = httpGETRequest(serverName2);
       Serial.println(sensorReadings);
       Serial.println(serverName2);
+    } else if (menuOption == 4) {
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+
+      timeClient.begin();
+      timeClient.update();
+
+
+      display.println("TEKAN APAPUN UNTUK KE MENU");
+
+      display.setTextSize(2);
+      display.println(timeClient.getFormattedTime());
+
+      delay(1000);
+      display.display();      
     }
   }
 }
