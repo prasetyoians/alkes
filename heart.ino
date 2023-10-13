@@ -12,6 +12,10 @@
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
 
+#include <Adafruit_MLX90614.h>
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+
 const char* ssid = "solo";
 const char* password = "123412345";
 
@@ -36,6 +40,7 @@ int currentState;     // the current reading from the input pin
 
 int sensorDataHeart[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
 int sensorDataOxy[REPORTING_PERIOD_MS];    // Array untuk menyimpan data
+int sensorDataSuhu[10];    // Array untuk menyimpan data
 
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
 
@@ -106,6 +111,12 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(BUTTON_ATAS, INPUT_PULLUP);
   pinMode(BUTTON_BAWAH, INPUT_PULLUP);
+
+  if (!mlx.begin()) {
+    Serial.println("Error connecting to MLX sensor. Check wiring.");
+    while (1);
+  };
+  
 }
 
 
@@ -129,9 +140,11 @@ void displayMenu() {
 
       display.println("Akselerasi");
 
+      display.println("Suhu");
 
-      display.println("Semua Data");
-      display.println("Beranda");
+
+      // display.println("Semua Data");
+      // display.println("Beranda");
       break;
     case 1:
 
@@ -144,9 +157,13 @@ void displayMenu() {
 
       display.println("Akselerasi");
 
+      display.println("Suhu");
+    
 
-      display.println("Semua Data");
-      display.println("Beranda");
+
+
+      // display.println("Semua Data");
+      // display.println("Beranda");
 
       break;
     case 2:
@@ -159,9 +176,11 @@ void displayMenu() {
 
       display.println("--> Akselerasi");
 
+      display.println("Suhu");
+  
 
-      display.println("Semua Data");
-      display.println("Beranda");
+      // display.println("Semua Data");
+      // display.println("Beranda");
 
       break;
     case 3:
@@ -175,9 +194,11 @@ void displayMenu() {
 
       display.println("Akselerasi");
 
+      display.println("-->Suhu");
+    
 
-      display.println("-->Semua Data");
-      display.println("Beranda");
+      // display.println("-->Semua Data");
+      // display.println("Beranda");
 
 
       break;
@@ -188,10 +209,30 @@ void displayMenu() {
 
 
       display.println("Akselerasi");
+      display.println("Suhu");
+     
+
+
+      display.println("-->Semua Data");
+      // display.println("Beranda");
+
+
+      break;
+
+      
+    case 5:
+
+
+      // display.println("SPO2");
+
+
+      display.println("Akselerasi");
+      display.println("Suhu");
+      
 
 
       display.println("Semua Data");
-      display.println("-->Beranda");
+       display.println("-->Beranda");
 
 
       break;
@@ -208,7 +249,7 @@ void loop() {
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
     if (menuOption < 0) {
-      menuOption = 4;  // Jumlah opsi menu minus satu
+      menuOption = 5;  // Jumlah opsi menu minus satu
     }
     displayMenu();
     delay(200);  // Hindari bouncing tombol
@@ -216,7 +257,7 @@ void loop() {
 
   if (digitalRead(BUTTON_BAWAH) == LOW) {
     menuOption++;
-    if (menuOption > 4) {
+    if (menuOption > 5) {
       menuOption = 0;
     }
     displayMenu();
@@ -390,7 +431,46 @@ void loop() {
   //    
 
 
-    } else if (menuOption == 3) {
+    }else if(menuOption == 3){
+
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(1);
+      display.setCursor(0, 0);
+
+
+
+    display.println("suhu:");
+ 
+
+
+int cc = 0 ;
+     for (int x = 0; x < 10; x++) {
+       
+
+        cc = mlx.readObjectTempC();
+
+          Serial.print(".");
+          sensorDataSuhu[x] = cc;
+      
+        delay(50);
+      }
+
+      int dataSizeSuhu = sizeof(sensorDataSuhu) / sizeof(sensorDataSuhu[0]);
+
+      int modeValueSuhu = calculateMode(sensorDataSuhu, dataSizeSuhu);
+      
+      display.println(modeValueSuhu);
+
+      display.display();
+
+
+
+
+      
+
+
+    }else if (menuOption == 4) {
 
 
 
@@ -424,7 +504,7 @@ void loop() {
         aa = pox.getSpO2();
         bb = pox.getHeartRate();
 
-        if (aa > 0 && bb > 0) {
+        if (bb > 0) {
           countOxy++;
           oxy = oxy + aa;
           heart = heart + bb;
@@ -487,7 +567,7 @@ void loop() {
       } else {
         display.print("");
       }
-      display.println("BPM");
+      display.print("BPM, ");
 
 
       display.print("oxy: ");
@@ -498,6 +578,10 @@ void loop() {
       }
       display.println("%");
 
+//mlx
+    display.print("suhu:");
+    display.print(mlx.readObjectTempC());
+    display.println("C");
 
 
       // mpu
@@ -516,7 +600,10 @@ void loop() {
       String sensorReadings = httpGETRequest(serverName2);
       Serial.println(sensorReadings);
       Serial.println(serverName2);
-    } else if (menuOption == 4) {
+
+
+      
+    } else if (menuOption == 5) {
       display.clearDisplay();
       display.setTextSize(1);
       display.setTextColor(1);
