@@ -63,6 +63,83 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200);  // Gunakan server NTP yang
 
 
 String data = "";
+
+
+void display_battery() {
+  display.clearDisplay();
+  // display.setTextSize(1);
+  // display.setTextColor(WHITE);
+  // display.setCursor(0, 20);
+  // display.drawRect(1.5, 2.5, 10, 5, WHITE); // Diperkecil setengah kali
+  // display.drawRect(11.5, 3.75, 1.25, 2.5, WHITE); // Diperkecil setengah kali
+  // display.fillRect(1.5, 2.5, (int)(1 * (battery.toInt()) / 10), 5, WHITE); // Diperkecil setengah kali
+  /////////////1/2
+  // display.drawRect(7, 10, 40, 20, WHITE); // Diperkecil setengah kali
+  // display.drawRect(47, 15, 5, 10, WHITE); // Diperkecil setengah kali
+  // display.fillRect(7, 10, (int)(4 * (battery.toInt()) / 10), 20, WHITE); // Diperkecil setengah kali
+  ///////////1/4
+  // display.drawRect(3.5, 5, 20, 10, WHITE); // Diperkecil setengah kali lagi
+  // display.drawRect(23.5, 7.5, 2.5, 5, WHITE); // Diperkecil setengah kali lagi
+  // display.fillRect(3.5, 5, (int)(2 * (battery.toInt()) / 10), 10, WHITE); // Diperkecil setengah kali lagi
+
+  // //////////////
+  // display.setTextColor(BLACK); // Mengatur warna teks menjadi hitam
+  // display.setTextSize(1);
+  // display.setCursor(3.5, 5); // Sesuaikan posisi teks agar sesuai dengan rect
+  // display.print(battery);
+  // display.print("%");
+  // display.display();
+  // delay(2000);
+  int screenWidth = 128; // Lebar layar display
+  // Mengatur koordinat x berdasarkan lebar layar
+  int xRect = screenWidth - 3.5 - 20;
+  xRect -= 5;
+  int xText = screenWidth - 3.5 - 20;
+  int xText2 = screenWidth - 0.5 - 15;
+
+  display.drawRect(xRect, 5, 25, 10, WHITE);
+  display.drawRect(xRect + 25, 7.5, 2.5, 5, WHITE);
+  display.fillRect(xRect, 5, (2 * map(BL.getBatteryChargeLevel(), 0, 10, 0, 100) / 8), 10, WHITE);
+  if (map(BL.getBatteryChargeLevel(), 0, 10, 0, 100) <= 50) {
+    // Mengatur warna teks menjadi putih
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
+
+    // Menempatkan teks "battery" di sebelah kanan objek
+    display.setCursor(xText2, 5 + 2);
+    display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+    display.display();
+    delay(2000);
+  } else {
+    // Mengatur warna teks menjadi hitam
+    display.setTextColor(BLACK);
+    display.setTextSize(1);
+
+    // Menempatkan teks "battery" di sebelah kanan objek
+    display.setCursor(xText, 5 + 2);
+    display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+    display.display();
+    delay(2000);
+  }
+
+
+  // display.clearDisplay();
+  // display.setTextSize(1);
+  // display.setTextColor(WHITE);
+  // display.setCursor(0, 20);
+  // display.drawRect(1.5, 2.5, 10, 5, WHITE); // Diperkecil setengah kali
+  // display.drawRect(11.5, 3.75, 1.25, 2.5, WHITE); // Diperkecil setengah kali
+  // display.fillRect(1.5, 2.5, (int)(1 * (battery.toInt()) / 10), 5, WHITE); // Diperkecil setengah kali
+
+  // // display.print("Bat:");
+  // display.setTextSize(1/2);
+  // display.setCursor(0, 20);
+  // display.print(battery);
+  // display.print("%");
+  // display.display();
+  // delay(2000);
+}
+
 void setup() {
   Serial.begin(115200);
   // WiFi.begin(ssid, password);
@@ -87,7 +164,7 @@ void setup() {
       ;  // Don't proceed, loop forever
   }
 
-  Serial.println("MPU6050 OLED demo");
+  Serial.println("MPU6050 display demo");
 
   if (!mpu.begin()) {
     Serial.println("Sensor init failed");
@@ -109,9 +186,10 @@ void setup() {
   timeClient.update();
 
 
-    
-      display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-      display.println("%");
+          display_battery();
+
+      // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+      // display.println("%");
 
 
   display.setTextSize(2);
@@ -643,8 +721,7 @@ int cc = 0 ;
       timeClient.update();
 
 
-      display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-      display.println("%");
+          display_battery();
 
       display.setTextSize(2);
       display.println(timeClient.getFormattedTime());
