@@ -12,7 +12,16 @@
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
 
+
 #include <Adafruit_MLX90614.h>
+
+#include <Pangodream_18650_CL.h>
+Pangodream_18650_CL BL;
+
+#define ADC_PIN 34
+#define CONV_FACTOR 1.7
+#define READS 20
+
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
@@ -100,7 +109,10 @@ void setup() {
   timeClient.update();
 
 
-  display.println("TEKAN APAPUN UNTUK KE MENU");
+    
+      display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+      display.println("%");
+
 
   display.setTextSize(2);
   display.println(timeClient.getFormattedTime());
@@ -127,6 +139,9 @@ void displayMenu() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
+      // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+      // display.println("%");
+
 
 
   switch (menuOption) {
@@ -245,6 +260,21 @@ void displayMenu() {
 
 
 void loop() {
+
+  Pangodream_18650_CL BL(ADC_PIN, CONV_FACTOR, READS);
+
+
+  Serial.print("Value from pin: ");
+  Serial.println(analogRead(34));
+  Serial.print("Average value from pin: ");
+  Serial.println(BL.pinRead());
+  Serial.print("Volts: ");
+  Serial.println(BL.getBatteryVolts());
+  Serial.print("Charge level: ");
+  Serial.println(BL.getBatteryChargeLevel());
+  // Serial.print("Hasil mapping: ");
+  // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));  
+  Serial.println("");
 
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
@@ -613,7 +643,8 @@ int cc = 0 ;
       timeClient.update();
 
 
-      display.println("TEKAN APAPUN UNTUK KE MENU");
+      display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+      display.println("%");
 
       display.setTextSize(2);
       display.println(timeClient.getFormattedTime());
@@ -688,3 +719,4 @@ int calculateMode(int data[], int dataSize) {
 
   return modeValue;
 }
+
