@@ -32,7 +32,7 @@ const char* password = "123412345";
 int plus;
 Adafruit_MPU6050 mpu;
 
-int menuOption = 0;  // Opsi menu saat ini
+int menuOption = 5;  // Opsi menu saat ini
 
 
 #define BUTTON_PIN 21    // GIOP21 pin connected to button
@@ -49,7 +49,7 @@ int currentState;     // the current reading from the input pin
 
 int sensorDataHeart[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
 int sensorDataOxy[REPORTING_PERIOD_MS];    // Array untuk menyimpan data
-int sensorDataSuhu[10];    // Array untuk menyimpan data
+int sensorDataSuhu[10];                    // Array untuk menyimpan data
 
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
 
@@ -63,34 +63,14 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200);  // Gunakan server NTP yang
 
 
 String data = "";
+bool customLoopActive = true;
+
 
 
 void display_battery() {
   display.clearDisplay();
-  // display.setTextSize(1);
-  // display.setTextColor(WHITE);
-  // display.setCursor(0, 20);
-  // display.drawRect(1.5, 2.5, 10, 5, WHITE); // Diperkecil setengah kali
-  // display.drawRect(11.5, 3.75, 1.25, 2.5, WHITE); // Diperkecil setengah kali
-  // display.fillRect(1.5, 2.5, (int)(1 * (battery.toInt()) / 10), 5, WHITE); // Diperkecil setengah kali
-  /////////////1/2
-  // display.drawRect(7, 10, 40, 20, WHITE); // Diperkecil setengah kali
-  // display.drawRect(47, 15, 5, 10, WHITE); // Diperkecil setengah kali
-  // display.fillRect(7, 10, (int)(4 * (battery.toInt()) / 10), 20, WHITE); // Diperkecil setengah kali
-  ///////////1/4
-  // display.drawRect(3.5, 5, 20, 10, WHITE); // Diperkecil setengah kali lagi
-  // display.drawRect(23.5, 7.5, 2.5, 5, WHITE); // Diperkecil setengah kali lagi
-  // display.fillRect(3.5, 5, (int)(2 * (battery.toInt()) / 10), 10, WHITE); // Diperkecil setengah kali lagi
 
-  // //////////////
-  // display.setTextColor(BLACK); // Mengatur warna teks menjadi hitam
-  // display.setTextSize(1);
-  // display.setCursor(3.5, 5); // Sesuaikan posisi teks agar sesuai dengan rect
-  // display.print(battery);
-  // display.print("%");
-  // display.display();
-  // delay(2000);
-  int screenWidth = 128; // Lebar layar display
+  int screenWidth = 128;  // Lebar layar display
   // Mengatur koordinat x berdasarkan lebar layar
   int xRect = screenWidth - 3.5 - 20;
   xRect -= 5;
@@ -122,22 +102,18 @@ void display_battery() {
     delay(2000);
   }
 
+  String formattedTime = timeClient.getFormattedTime();  // Assuming formattedTime is in format "HH:MM:SS"
 
-  // display.clearDisplay();
-  // display.setTextSize(1);
-  // display.setTextColor(WHITE);
-  // display.setCursor(0, 20);
-  // display.drawRect(1.5, 2.5, 10, 5, WHITE); // Diperkecil setengah kali
-  // display.drawRect(11.5, 3.75, 1.25, 2.5, WHITE); // Diperkecil setengah kali
-  // display.fillRect(1.5, 2.5, (int)(1 * (battery.toInt()) / 10), 5, WHITE); // Diperkecil setengah kali
+  int colonPos = formattedTime.indexOf(':');
 
-  // // display.print("Bat:");
-  // display.setTextSize(1/2);
-  // display.setCursor(0, 20);
-  // display.print(battery);
-  // display.print("%");
-  // display.display();
-  // delay(2000);
+  // Extract hour substring
+  String hourString = formattedTime.substring(0, colonPos);
+
+  // Extract minute substring
+  String minuteString = formattedTime.substring(colonPos + 1, colonPos + 3);  // Assumes minutes are always two digits
+
+  int hour = hourString.toInt();      // Convert string to integer
+  int minute = minuteString.toInt();  // Convert string to integerg
 }
 
 void setup() {
@@ -185,16 +161,10 @@ void setup() {
   timeClient.begin();
   timeClient.update();
 
-
-          display_battery();
-
-      // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-      // display.println("%");
-
-
-  display.setTextSize(2);
-  display.println(timeClient.getFormattedTime());
+  display_jam_awal();
   display.display();
+
+
 
 
   Serial.print("Initializing pulse oximeter..");
@@ -204,9 +174,9 @@ void setup() {
 
   if (!mlx.begin()) {
     Serial.println("Error connecting to MLX sensor. Check wiring.");
-    while (1);
+    while (1)
+      ;
   };
-  
 }
 
 
@@ -217,8 +187,8 @@ void displayMenu() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
-      // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-      // display.println("%");
+  // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+  // display.println("%");
 
 
 
@@ -251,7 +221,7 @@ void displayMenu() {
       display.println("Akselerasi");
 
       display.println("Suhu");
-    
+
 
 
 
@@ -270,7 +240,7 @@ void displayMenu() {
       display.println("--> Akselerasi");
 
       display.println("Suhu");
-  
+
 
       // display.println("Semua Data");
       // display.println("Beranda");
@@ -288,7 +258,7 @@ void displayMenu() {
       display.println("Akselerasi");
 
       display.println("-->Suhu");
-    
+
 
       // display.println("-->Semua Data");
       // display.println("Beranda");
@@ -303,7 +273,7 @@ void displayMenu() {
 
       display.println("Akselerasi");
       display.println("Suhu");
-     
+
 
 
       display.println("-->Semua Data");
@@ -312,7 +282,7 @@ void displayMenu() {
 
       break;
 
-      
+
     case 5:
 
 
@@ -321,11 +291,11 @@ void displayMenu() {
 
       display.println("Akselerasi");
       display.println("Suhu");
-      
+
 
 
       display.println("Semua Data");
-       display.println("-->Beranda");
+      display.println("-->Beranda");
 
 
       break;
@@ -351,8 +321,9 @@ void loop() {
   Serial.print("Charge level: ");
   Serial.println(BL.getBatteryChargeLevel());
   // Serial.print("Hasil mapping: ");
-  // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));  
+  // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   Serial.println("");
+
 
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
@@ -536,10 +507,10 @@ void loop() {
       delay(100);
       display.display();
 
-  //    
+      //
 
 
-    }else if(menuOption == 3){
+    } else if (menuOption == 3) {
 
       display.clearDisplay();
       display.setTextSize(1);
@@ -548,26 +519,26 @@ void loop() {
 
 
 
-    display.println("suhu:");
- 
+      display.println("suhu:");
 
 
-int cc = 0 ;
-     for (int x = 0; x < 10; x++) {
-       
+
+      int cc = 0;
+      for (int x = 0; x < 10; x++) {
+
 
         cc = mlx.readObjectTempC();
 
-          Serial.print(".");
-          sensorDataSuhu[x] = cc;
-      
+        Serial.print(".");
+        sensorDataSuhu[x] = cc;
+
         delay(50);
       }
 
       int dataSizeSuhu = sizeof(sensorDataSuhu) / sizeof(sensorDataSuhu[0]);
 
       int modeValueSuhu = calculateMode(sensorDataSuhu, dataSizeSuhu);
-      
+
       display.println(modeValueSuhu);
 
       display.display();
@@ -575,10 +546,10 @@ int cc = 0 ;
 
 
 
-      
 
 
-    }else if (menuOption == 4) {
+
+    } else if (menuOption == 4) {
 
 
 
@@ -686,10 +657,10 @@ int cc = 0 ;
       }
       display.println("%");
 
-//mlx
-    display.print("suhu:");
-    display.print(mlx.readObjectTempC());
-    display.println("C");
+      //mlx
+      display.print("suhu:");
+      display.print(mlx.readObjectTempC());
+      display.println("C");
 
 
       // mpu
@@ -710,29 +681,47 @@ int cc = 0 ;
       Serial.println(serverName2);
 
 
-      
+
     } else if (menuOption == 5) {
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setTextColor(1);
-      display.setCursor(0, 0);
 
-      timeClient.begin();
-      timeClient.update();
+      display_jam_awal();
 
-
-          display_battery();
-
-      display.setTextSize(2);
-      display.println(timeClient.getFormattedTime());
-
-      delay(1000);
-      display.display();      
     }
+
+    Serial.println(menuOption);
   }
 }
 
 
+void display_jam_awal() {
+
+
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(1);
+    display.setCursor(0, 0);
+
+    timeClient.begin();
+    timeClient.update();
+
+
+    display_battery();
+
+    display.setTextSize(2);
+
+    int currentHour = timeClient.getHours();
+    int currentMinute = timeClient.getMinutes();
+
+
+    display.print(currentHour);
+    display.print(":");
+    display.println(currentMinute);
+
+
+    delay(1000);
+    display.display();
+  
+}
 
 
 String httpGETRequest(String serverName) {
@@ -796,4 +785,3 @@ int calculateMode(int data[], int dataSize) {
 
   return modeValue;
 }
-
