@@ -65,6 +65,8 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200);  // Gunakan server NTP yang
 String data = "";
 bool customLoopActive = true;
 
+      bool customAll = true;
+
 
 
 void display_battery() {
@@ -190,20 +192,24 @@ void displayMenu() {
   // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   // display.println("%");
 
-
+int SCREEN_WIDTH = 128;
+int SCREEN_HEIGHT = 32;
 
   switch (menuOption) {
     case 0:
 
-      display.println("--> Heart Rate");
+      display.fillRect(0, 0, 128, 8, SSD1306_WHITE); 
+      display.setTextColor(SSD1306_BLACK); 
+      display.println("DETAK JANTUNG");
 
 
+display.setTextColor(SSD1306_WHITE); 
       display.println("SPO2");
 
 
-      display.println("Akselerasi");
+      display.println("AKSELERASI");
 
-      display.println("Suhu");
+      display.println("SUHU");
 
 
       // display.println("Semua Data");
@@ -212,15 +218,21 @@ void displayMenu() {
     case 1:
 
 
-      display.println("Heart Rate");
+      display.println("DETAK JANTUNG");
 
 
-      display.println("--> SPO2");
+      display.fillRect(0, 8, 128, 8, SSD1306_WHITE); 
+      display.setTextColor(SSD1306_BLACK); 
+
+      display.println("SPO2");
+      display.setTextColor(SSD1306_WHITE); 
+
+      
 
 
-      display.println("Akselerasi");
+      display.println("AKSELERASI");
 
-      display.println("Suhu");
+      display.println("SUHU");
 
 
 
@@ -232,14 +244,21 @@ void displayMenu() {
     case 2:
 
 
-      display.println("Heart Rate");
+      display.println("DETAK JANTUNG");
 
 
       display.println("SPO2");
 
-      display.println("--> Akselerasi");
 
-      display.println("Suhu");
+      display.fillRect(0, 16, 128, 8, SSD1306_WHITE); 
+      display.setTextColor(SSD1306_BLACK); 
+
+      display.println("AKSELERASI");
+
+
+      display.setTextColor(SSD1306_WHITE); 
+
+      display.println("SUHU");
 
 
       // display.println("Semua Data");
@@ -249,15 +268,20 @@ void displayMenu() {
     case 3:
 
 
-      display.println("Heart Rate");
+      display.println("DETAK JANTUNG");
 
 
       display.println("SPO2");
 
 
-      display.println("Akselerasi");
+      display.println("AKSELERASI");
 
-      display.println("-->Suhu");
+
+
+      display.fillRect(0, 24, 128, 8, SSD1306_WHITE); 
+      display.setTextColor(SSD1306_BLACK); 
+      
+      display.println("SUHU");
 
 
       // display.println("-->Semua Data");
@@ -271,12 +295,14 @@ void displayMenu() {
       display.println("SPO2");
 
 
-      display.println("Akselerasi");
-      display.println("Suhu");
+      display.println("AKSELERASI");
+      display.println("SUHU");
 
 
 
-      display.println("-->Semua Data");
+      display.fillRect(0, 24, 128, 8, SSD1306_WHITE); 
+      display.setTextColor(SSD1306_BLACK); 
+      display.println("SEMUA DATA");
       // display.println("Beranda");
 
 
@@ -289,13 +315,18 @@ void displayMenu() {
       // display.println("SPO2");
 
 
-      display.println("Akselerasi");
-      display.println("Suhu");
+      display.println("AKSELERASI");
+      display.println("SUHU");
 
 
 
-      display.println("Semua Data");
-      display.println("-->Beranda");
+      display.println("SEMUA DATA");
+
+
+      
+      display.fillRect(0, 24, 128, 8, SSD1306_WHITE); 
+      display.setTextColor(SSD1306_BLACK); 
+      display.println("BERANDA");
 
 
       break;
@@ -684,8 +715,22 @@ void loop() {
 
     } else if (menuOption == 5) {
 
-      display_jam_awal();
 
+          customAll != customAll;
+
+          
+
+        while(customAll){
+          display_jam_awal();
+        delay(500);
+
+          if(digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW ){
+            
+              break;                          
+          }
+        }
+
+       
     }
 
     Serial.println(menuOption);
