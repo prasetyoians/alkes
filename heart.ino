@@ -23,6 +23,11 @@ Pangodream_18650_CL BL;
 #define READS 20
 
 
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT  64
+
+
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
 const char* ssid = "solo";
@@ -51,7 +56,7 @@ int sensorDataHeart[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
 int sensorDataOxy[REPORTING_PERIOD_MS];    // Array untuk menyimpan data
 int sensorDataSuhu[10];                    // Array untuk menyimpan data
 
-Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 PulseOximeter pox;
 
@@ -151,13 +156,15 @@ void setup() {
   }
   Serial.println("Found a MPU6050 sensor");
 
+  display.clearDisplay();
 
-  display.display();
-
-  display.begin();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  
   display.clearDisplay();
   display.setTextSize(1);
-  display.setTextColor(1);
+  display.setTextColor(WHITE);
   display.setCursor(0, 0);
 
   timeClient.begin();
@@ -192,8 +199,6 @@ void displayMenu() {
   // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   // display.println("%");
 
-int SCREEN_WIDTH = 128;
-int SCREEN_HEIGHT = 32;
 
   switch (menuOption) {
     case 0:
@@ -385,7 +390,7 @@ void loop() {
       display.clearDisplay();
       Serial.println("Counting...");
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
       display.println("Counting...");
       display.display();
@@ -439,7 +444,7 @@ void loop() {
       ///display
       display.clearDisplay();
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
 
 
@@ -461,7 +466,7 @@ void loop() {
       display.clearDisplay();
       Serial.println("Counting...");
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
       display.println("Counting...");
       display.display();
@@ -509,7 +514,7 @@ void loop() {
 
       display.clearDisplay();
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
       display.print("oxy: ");
       if (aa > 0) {
@@ -526,7 +531,7 @@ void loop() {
 
       display.clearDisplay();
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
 
       display.print("Akselo: x:");
@@ -545,7 +550,7 @@ void loop() {
 
       display.clearDisplay();
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
 
 
@@ -593,7 +598,7 @@ void loop() {
       display.clearDisplay();
       Serial.println("Counting...");
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
       display.println("Counting...");
       display.display();
@@ -669,7 +674,7 @@ void loop() {
 
       display.clearDisplay();
       display.setTextSize(1);
-      display.setTextColor(1);
+      display.setTextColor(WHITE);
       display.setCursor(0, 0);
       display.print("hr: ");
       if (bb > 0) {
@@ -743,7 +748,7 @@ void display_jam_awal() {
 
     display.clearDisplay();
     display.setTextSize(1);
-    display.setTextColor(1);
+    display.setTextColor(WHITE);
     display.setCursor(0, 0);
 
     timeClient.begin();
