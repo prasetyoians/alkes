@@ -25,7 +25,7 @@ Pangodream_18650_CL BL;
 
 
 #define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT  64
+#define SCREEN_HEIGHT 64
 
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
@@ -51,6 +51,22 @@ int currentState;     // the current reading from the input pin
 
 #define REPORTING_PERIOD_MS 200
 
+// 'wifi by Freepik', 40x40px
+const unsigned char wifiIcon[] PROGMEM = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x07, 0xff, 0xe0, 0x00, 0x00, 0x7f,
+  0xff, 0xfe, 0x00, 0x01, 0xff, 0xff, 0xff, 0x80, 0x03, 0xff, 0xff, 0xff, 0xc0, 0x0f, 0xff, 0xff,
+  0xff, 0xf0, 0x1f, 0xff, 0xff, 0xff, 0xf8, 0x7f, 0xfc, 0x00, 0x3f, 0xfe, 0xff, 0xe0, 0x00, 0x07,
+  0xff, 0xff, 0x87, 0xff, 0xe1, 0xff, 0x7f, 0x1f, 0xff, 0xf8, 0xff, 0x7e, 0x7f, 0xff, 0xfe, 0x7e,
+  0x3c, 0xff, 0xff, 0xff, 0x3c, 0x01, 0xff, 0xff, 0xff, 0x80, 0x03, 0xff, 0xe7, 0xff, 0xc0, 0x03,
+  0xfe, 0x00, 0x3f, 0xe0, 0x03, 0xf8, 0x7e, 0x1f, 0xc0, 0x01, 0xe3, 0xff, 0xc7, 0x80, 0x00, 0xc7,
+  0xff, 0xe3, 0x00, 0x00, 0x0f, 0xff, 0xf0, 0x00, 0x00, 0x1f, 0xff, 0xf8, 0x00, 0x00, 0x1f, 0xff,
+  0xf8, 0x00, 0x00, 0x0f, 0xc3, 0xf0, 0x00, 0x00, 0x07, 0x81, 0xe0, 0x00, 0x00, 0x03, 0x3c, 0xc0,
+  0x00, 0x00, 0x00, 0x7e, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00,
+  0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x7e, 0x00, 0x00, 0x00,
+  0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
 
 int sensorDataHeart[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
 int sensorDataOxy[REPORTING_PERIOD_MS];    // Array untuk menyimpan data
@@ -70,7 +86,7 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200);  // Gunakan server NTP yang
 String data = "";
 bool customLoopActive = true;
 
-      bool customAll = true;
+bool customAll = true;
 
 
 
@@ -123,6 +139,44 @@ void display_battery() {
   int minute = minuteString.toInt();  // Convert string to integerg
 }
 
+bool cek = true;
+
+void ConnectWIFI() {
+
+  WiFiManager wifiManager;
+
+ // Coba untuk terhubung ke jaringan WiFi yang sudah disimpan
+  if (!wifiManager.autoConnect("ALKES")) {
+    display.clearDisplay();
+          display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
+
+          display.println("Mencari akses poin lain...");
+  display.display();
+
+        
+
+    // Loop untuk mencoba terhubung ke jaringan WiFi baru
+    while (!wifiManager.autoConnect()) {
+        display.clearDisplay();
+
+          display.setCursor(25, 50);
+           display.print("Connecting ...");
+  display.display();
+
+      delay(1000);
+    }
+  }
+
+display.clearDisplay();
+  display.setTextSize(1);
+  display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
+  display.setCursor(33, 50);
+  display.print("Connected!");
+  display.display();
+
+}
+////////////////
+
 void setup() {
   Serial.begin(115200);
   // WiFi.begin(ssid, password);
@@ -134,18 +188,32 @@ void setup() {
   // Serial.println("");
   // Serial.print("Connected to WiFi network with IP Address: ");
   // Serial.println(WiFi.localIP());
-  WiFiManager wifiManager;
 
   // Start WiFiManager for configuration
   // wifiManager.resetSettings();
+  // WiFiManager wifiManager;
 
-  wifiManager.autoConnect("ALKES");  // "AutoConnectAP" is the name of the access point
+  // wifiManager.autoConnect("ALKES");  // "AutoConnectAP" is the name of the access point
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {  // Address 0x3C for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     for (;;)
       ;  // Don't proceed, loop forever
   }
+
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  
+  display.clearDisplay();
+          display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
+    
+          display.setCursor(0, 45);
+          display.println("Sambungkan WiFi anda ke ALKES");
+  display.display();
+display.display();
 
   Serial.println("MPU6050 display demo");
 
@@ -156,25 +224,18 @@ void setup() {
   }
   Serial.println("Found a MPU6050 sensor");
 
-  display.clearDisplay();
-
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 10);
   
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0, 0);
-
+  ConnectWIFI();
+  delay(3000);
   timeClient.begin();
   timeClient.update();
 
   display_jam_awal();
   display.display();
-
-
-
 
   Serial.print("Initializing pulse oximeter..");
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -183,8 +244,8 @@ void setup() {
 
   if (!mlx.begin()) {
     Serial.println("Error connecting to MLX sensor. Check wiring.");
-    while (1)
-      ;
+    // while (1)
+    //   ;
   };
 }
 
@@ -203,12 +264,12 @@ void displayMenu() {
   switch (menuOption) {
     case 0:
 
-      display.fillRect(0, 0, 128, 8, SSD1306_WHITE); 
-      display.setTextColor(SSD1306_BLACK); 
+      display.fillRect(0, 0, 128, 8, SSD1306_WHITE);
+      display.setTextColor(SSD1306_BLACK);
       display.println("DETAK JANTUNG");
 
 
-display.setTextColor(SSD1306_WHITE); 
+      display.setTextColor(SSD1306_WHITE);
       display.println("SPO2");
 
 
@@ -226,13 +287,13 @@ display.setTextColor(SSD1306_WHITE);
       display.println("DETAK JANTUNG");
 
 
-      display.fillRect(0, 8, 128, 8, SSD1306_WHITE); 
-      display.setTextColor(SSD1306_BLACK); 
+      display.fillRect(0, 8, 128, 8, SSD1306_WHITE);
+      display.setTextColor(SSD1306_BLACK);
 
       display.println("SPO2");
-      display.setTextColor(SSD1306_WHITE); 
+      display.setTextColor(SSD1306_WHITE);
 
-      
+
 
 
       display.println("AKSELERASI");
@@ -242,7 +303,7 @@ display.setTextColor(SSD1306_WHITE);
 
 
 
-    
+
       display.println("SEMUA DATA");
       display.println("BERANDA");
 
@@ -256,18 +317,18 @@ display.setTextColor(SSD1306_WHITE);
       display.println("SPO2");
 
 
-      display.fillRect(0, 16, 128, 8, SSD1306_WHITE); 
-      display.setTextColor(SSD1306_BLACK); 
+      display.fillRect(0, 16, 128, 8, SSD1306_WHITE);
+      display.setTextColor(SSD1306_BLACK);
 
       display.println("AKSELERASI");
 
 
-      display.setTextColor(SSD1306_WHITE); 
+      display.setTextColor(SSD1306_WHITE);
 
       display.println("SUHU");
 
 
-    
+
       display.println("SEMUA DATA");
       display.println("BERANDA");
 
@@ -285,14 +346,14 @@ display.setTextColor(SSD1306_WHITE);
 
 
 
-      display.fillRect(0, 24, 128, 8, SSD1306_WHITE); 
-      display.setTextColor(SSD1306_BLACK); 
-      
+      display.fillRect(0, 24, 128, 8, SSD1306_WHITE);
+      display.setTextColor(SSD1306_BLACK);
+
       display.println("SUHU");
 
-      display.setTextColor(SSD1306_WHITE); 
+      display.setTextColor(SSD1306_WHITE);
 
-   
+
       display.println("SEMUA DATA");
       display.println("BERANDA");
 
@@ -310,13 +371,13 @@ display.setTextColor(SSD1306_WHITE);
 
 
 
-      display.fillRect(0, 32, 128, 8, SSD1306_WHITE); 
-      display.setTextColor(SSD1306_BLACK); 
+      display.fillRect(0, 32, 128, 8, SSD1306_WHITE);
+      display.setTextColor(SSD1306_BLACK);
       display.println("SEMUA DATA");
 
-      display.setTextColor(SSD1306_WHITE); 
+      display.setTextColor(SSD1306_WHITE);
 
-       display.println("BERANDA");
+      display.println("BERANDA");
 
 
       break;
@@ -326,7 +387,7 @@ display.setTextColor(SSD1306_WHITE);
 
       display.println("DETAK JANTUNG");
 
-       display.println("SPO2");
+      display.println("SPO2");
 
 
       display.println("AKSELERASI");
@@ -337,9 +398,9 @@ display.setTextColor(SSD1306_WHITE);
       display.println("SEMUA DATA");
 
 
-      
-      display.fillRect(0, 40, 128, 8, SSD1306_WHITE); 
-      display.setTextColor(SSD1306_BLACK); 
+
+      display.fillRect(0, 40, 128, 8, SSD1306_WHITE);
+      display.setTextColor(SSD1306_BLACK);
       display.println("BERANDA");
 
 
@@ -733,21 +794,19 @@ void loop() {
     } else if (menuOption == 5) {
 
 
-          customAll != customAll;
+      customAll != customAll;
 
-          
 
-        while(customAll){
-          display_jam_awal();
+
+      while (customAll) {
+        display_jam_awal();
         delay(500);
 
-          if(digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW ){
-            
-              break;                          
-          }
-        }
+        if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
 
-       
+          break;
+        }
+      }
     }
 
     Serial.println(menuOption);
@@ -758,31 +817,30 @@ void loop() {
 void display_jam_awal() {
 
 
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.setCursor(0, 0);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
 
-    timeClient.begin();
-    timeClient.update();
-
-
-    display_battery();
-
-    display.setTextSize(2);
-
-    int currentHour = timeClient.getHours();
-    int currentMinute = timeClient.getMinutes();
+  timeClient.begin();
+  timeClient.update();
 
 
-    display.print(currentHour);
-    display.print(":");
-    display.println(currentMinute);
+  display_battery();
+
+  display.setTextSize(2);
+
+  int currentHour = timeClient.getHours();
+  int currentMinute = timeClient.getMinutes();
 
 
-    delay(1000);
-    display.display();
-  
+  display.print(currentHour);
+  display.print(":");
+  display.println(currentMinute);
+
+
+  delay(1000);
+  display.display();
 }
 
 
