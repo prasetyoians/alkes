@@ -217,8 +217,8 @@ display.setTextColor(SSD1306_WHITE);
       display.println("SUHU");
 
 
-      // display.println("Semua Data");
-      // display.println("Beranda");
+      display.println("SEMUA DATA");
+      display.println("BERANDA");
       break;
     case 1:
 
@@ -242,8 +242,9 @@ display.setTextColor(SSD1306_WHITE);
 
 
 
-      // display.println("Semua Data");
-      // display.println("Beranda");
+    
+      display.println("SEMUA DATA");
+      display.println("BERANDA");
 
       break;
     case 2:
@@ -266,8 +267,9 @@ display.setTextColor(SSD1306_WHITE);
       display.println("SUHU");
 
 
-      // display.println("Semua Data");
-      // display.println("Beranda");
+    
+      display.println("SEMUA DATA");
+      display.println("BERANDA");
 
       break;
     case 3:
@@ -288,14 +290,17 @@ display.setTextColor(SSD1306_WHITE);
       
       display.println("SUHU");
 
+      display.setTextColor(SSD1306_WHITE); 
 
-      // display.println("-->Semua Data");
-      // display.println("Beranda");
+   
+      display.println("SEMUA DATA");
+      display.println("BERANDA");
 
 
       break;
     case 4:
 
+      display.println("DETAK JANTUNG");
 
       display.println("SPO2");
 
@@ -305,10 +310,13 @@ display.setTextColor(SSD1306_WHITE);
 
 
 
-      display.fillRect(0, 24, 128, 8, SSD1306_WHITE); 
+      display.fillRect(0, 32, 128, 8, SSD1306_WHITE); 
       display.setTextColor(SSD1306_BLACK); 
       display.println("SEMUA DATA");
-      // display.println("Beranda");
+
+      display.setTextColor(SSD1306_WHITE); 
+
+       display.println("BERANDA");
 
 
       break;
@@ -316,8 +324,9 @@ display.setTextColor(SSD1306_WHITE);
 
     case 5:
 
+      display.println("DETAK JANTUNG");
 
-      // display.println("SPO2");
+       display.println("SPO2");
 
 
       display.println("AKSELERASI");
@@ -329,7 +338,7 @@ display.setTextColor(SSD1306_WHITE);
 
 
       
-      display.fillRect(0, 24, 128, 8, SSD1306_WHITE); 
+      display.fillRect(0, 40, 128, 8, SSD1306_WHITE); 
       display.setTextColor(SSD1306_BLACK); 
       display.println("BERANDA");
 
@@ -448,7 +457,7 @@ void loop() {
       display.setCursor(0, 0);
 
 
-      display.print("hr: ");
+      display.print("DETAK JANTUNG: ");
       if (bb > 0) {
         display.print(modeValueHeart);
       } else {
@@ -516,7 +525,7 @@ void loop() {
       display.setTextSize(1);
       display.setTextColor(WHITE);
       display.setCursor(0, 0);
-      display.print("oxy: ");
+      display.print("TINGKAT OKSIGEN: ");
       if (aa > 0) {
         display.print(modeValueOxy);
       } else {
@@ -534,11 +543,12 @@ void loop() {
       display.setTextColor(WHITE);
       display.setCursor(0, 0);
 
-      display.print("Akselo: x:");
+      display.println("AKSELOMETER:");
+      display.print("-X:");
       display.println(a.acceleration.x, 1);
-      display.print(",y:");
+      display.print("-Y:");
       display.println(a.acceleration.y, 1);
-      display.print(",z:");
+      display.print("-Z:");
       display.println(a.acceleration.z, 1);
       delay(100);
       display.display();
@@ -575,7 +585,8 @@ void loop() {
 
       int modeValueSuhu = calculateMode(sensorDataSuhu, dataSizeSuhu);
 
-      display.println(modeValueSuhu);
+      display.print(modeValueSuhu);
+      display.println("C");
 
       display.display();
 
@@ -676,16 +687,16 @@ void loop() {
       display.setTextSize(1);
       display.setTextColor(WHITE);
       display.setCursor(0, 0);
-      display.print("hr: ");
+      display.print("DETAK JANTUNG: ");
       if (bb > 0) {
         display.print(modeValueHeart);
       } else {
         display.print("");
       }
-      display.print("BPM, ");
+      display.println("BPM ");
 
 
-      display.print("oxy: ");
+      display.print("TINGKAT OKSIGEN: ");
       if (aa > 0) {
         display.print(modeValueOxy);
       } else {
@@ -694,7 +705,7 @@ void loop() {
       display.println("%");
 
       //mlx
-      display.print("suhu:");
+      display.print("SUHU:");
       display.print(mlx.readObjectTempC());
       display.println("C");
 
@@ -703,11 +714,12 @@ void loop() {
       sensors_event_t a, g, temp;
       mpu.getEvent(&a, &g, &temp);
 
-      display.print("Akselo: x:");
-      display.print(a.acceleration.x, 1);
-      display.print(",y:");
-      display.print(a.acceleration.y, 1);
-      display.print(",z:");
+      display.println("AKSELOMETER :");
+      display.print("-X: ");
+      display.println(a.acceleration.x, 1);
+      display.print("-Y:");
+      display.println(a.acceleration.y, 1);
+      display.print("-Z:");
       display.println(a.acceleration.z, 1);
       display.display();
       String serverName2 = "http://127.0.0.1:3000/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z);
