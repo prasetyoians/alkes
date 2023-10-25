@@ -808,52 +808,41 @@ if(menuBerubah == 1){
 }
 
 
-void display_jam_awal() {
-
-      customAll != customAll;
-
-
-
-      while (customAll) {
-
-
-  timeClient.update();
-
-     
-        //display.clearDisplay();
-        display.setTextSize(1);
+void updateDisplay(String timeStr) {
+  display.clearDisplay();
+     display.setTextSize(1);
         display.setTextColor(WHITE);
         display.setCursor(0, 0);
 
 
 
-        display_battery();
+       // display_battery();
 
         display.setTextSize(3);
 
-        String mins;
-          if(timeClient.getMinutes() < 10){
-             mins  = "0"+ String(timeClient.getMinutes());    
-          }else{
-             mins =   String(timeClient.getMinutes());  
-          }
-        
-          String timeStr = String(timeClient.getHours()) + ":" + mins ;
+  display.println(timeStr);
+  display.display();
+}
 
-        display.println(timeStr);
-        Serial.println(timeStr);
+void display_jam_awal() {
+
+  unsigned long lastMinute = 61; // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
 
 
-        display.display();
+ timeClient.update(); // Memperbarui waktu dari server NTP
 
-        if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+  // Periksa apakah menit telah berubah 
+  if (timeClient.getSeconds() > 0 && timeClient.getMinutes() != lastMinute) {
+    lastMinute = timeClient.getMinutes();
 
-          break;
-        }
-        
-        delay(1000);
-      }
-      
+    String timeStr = String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()) ;
+
+    updateDisplay(timeStr);
+
+    Serial.println(timeStr);
+  }
+
+  delay(1000); // Tunggu selama 1 detik sebelum memeriksa kembali     
 
 }
 
