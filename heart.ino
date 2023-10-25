@@ -38,7 +38,7 @@ int plus;
 Adafruit_MPU6050 mpu;
 
 int menuOption = 5;  // Opsi menu saat ini
-
+int menuBerubah = 1;
 
 #define BUTTON_PIN 21    // GIOP21 pin connected to button
 #define BUTTON_ATAS 19   // GIOP21 pin connected to button
@@ -112,7 +112,7 @@ void display_battery() {
     display.setCursor(xText2, 5 + 2);
     display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
     display.display();
-    delay(2000);
+    delay(200);
   } else {
     // Mengatur warna teks menjadi hitam
     display.setTextColor(BLACK);
@@ -122,7 +122,7 @@ void display_battery() {
     display.setCursor(xText, 5 + 2);
     display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
     display.display();
-    delay(2000);
+    delay(200);
   }
 
   String formattedTime = timeClient.getFormattedTime();  // Assuming formattedTime is in format "HH:MM:SS"
@@ -234,7 +234,6 @@ display.display();
   timeClient.begin();
   timeClient.update();
 
-  display_jam_awal();
   display.display();
 
   Serial.print("Initializing pulse oximeter..");
@@ -418,18 +417,26 @@ void loop() {
   Pangodream_18650_CL BL(ADC_PIN, CONV_FACTOR, READS);
 
 
-  Serial.print("Value from pin: ");
-  Serial.println(analogRead(34));
-  Serial.print("Average value from pin: ");
-  Serial.println(BL.pinRead());
-  Serial.print("Volts: ");
-  Serial.println(BL.getBatteryVolts());
-  Serial.print("Charge level: ");
-  Serial.println(BL.getBatteryChargeLevel());
+  // Serial.print("Value from pin: ");
+  // Serial.println(analogRead(34));
+  // Serial.print("Average value from pin: ");
+  // Serial.println(BL.pinRead());
+  // Serial.print("Volts: ");
+  // Serial.println(BL.getBatteryVolts());
+  // Serial.print("Charge level: ");
+  // Serial.println(BL.getBatteryChargeLevel());
+
+
   // Serial.print("Hasil mapping: ");
   // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   Serial.println("");
 
+if(menuBerubah == 1){
+  display_jam_awal();
+  if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+       menuBerubah = 0;
+  }
+}
 
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
@@ -792,21 +799,8 @@ void loop() {
 
 
     } else if (menuOption == 5) {
+          display_jam_awal();
 
-
-      customAll != customAll;
-
-
-
-      while (customAll) {
-        display_jam_awal();
-        delay(500);
-
-        if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
-
-          break;
-        }
-      }
     }
 
     Serial.println(menuOption);
@@ -816,31 +810,51 @@ void loop() {
 
 void display_jam_awal() {
 
+      customAll != customAll;
 
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 0);
 
-  timeClient.begin();
+
+      while (customAll) {
+
+
   timeClient.update();
 
-
-  display_battery();
-
-  display.setTextSize(2);
-
-  int currentHour = timeClient.getHours();
-  int currentMinute = timeClient.getMinutes();
+     
+        //display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(WHITE);
+        display.setCursor(0, 0);
 
 
-  display.print(currentHour);
-  display.print(":");
-  display.println(currentMinute);
+
+        display_battery();
+
+        display.setTextSize(3);
+
+        String mins;
+          if(timeClient.getMinutes() < 10){
+             mins  = "0"+ String(timeClient.getMinutes());    
+          }else{
+             mins =   String(timeClient.getMinutes());  
+          }
+        
+          String timeStr = String(timeClient.getHours()) + ":" + mins ;
+
+        display.println(timeStr);
+        Serial.println(timeStr);
 
 
-  delay(1000);
-  display.display();
+        display.display();
+
+        if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+
+          break;
+        }
+        
+        delay(1000);
+      }
+      
+
 }
 
 
