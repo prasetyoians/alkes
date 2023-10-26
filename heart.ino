@@ -780,7 +780,8 @@ if(menuBerubah == 1){
           if(digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW){
             break;
 
-//TRUE            
+//TRUE         
+//CONDITION   
                         
           }
         
