@@ -794,7 +794,7 @@ if(menuBerubah == 1){
 }
 
 
-void updateDisplay(String timeStr) {
+void updateDisplay(String timeStr, String dateStr) {
   display.clearDisplay();  
      display.setTextSize(1);
         display.setTextColor(WHITE);
@@ -816,13 +816,18 @@ void updateDisplay(String timeStr) {
   display.setCursor(xText2, 5 + 2);
   display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   display.print("%");
+  display.println("");
   
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.println(dateStr);
 
 
 
        // display_battery();
 
         display.setTextSize(3);
+        display.setCursor(0, 25);
 
   display.println(timeStr);
   display.display();
@@ -831,9 +836,15 @@ void updateDisplay(String timeStr) {
 void display_jam_awal() {
 
   unsigned long lastMinute = 61; // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
+   time_t epochTime = timeClient.getEpochTime();
+
+  struct tm *ptm = gmtime ((time_t *)&epochTime); 
 
   
  timeClient.update(); // Memperbarui waktu dari server NTP
+ int day = ptm->tm_mday;
+  int month = ptm->tm_mon+1;
+  int year = ptm->tm_year+1900 ; 
 
   // Periksa apakah menit telah berubah 
   if (timeClient.getSeconds() > 0 && timeClient.getMinutes() != lastMinute) {
@@ -847,8 +858,9 @@ void display_jam_awal() {
     }
 
     String timeStr = String(timeClient.getHours()) + ":" + mins ;
+    String dateStr = String(day)+"/"+String(month)+"/"+String(year);     
 
-    updateDisplay(timeStr);
+    updateDisplay(timeStr,dateStr);
 
     Serial.println(timeStr);
   }
