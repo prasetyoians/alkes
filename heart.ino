@@ -51,7 +51,7 @@ int currentState;     // the current reading from the input pin
 
 #define REPORTING_PERIOD_MS 200
 
-// 'wifi by Freepik', 40x40px
+// 'wifi by Freepik', 40x40px ICON
 const unsigned char wifiIcon[] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x07, 0xff, 0xe0, 0x00, 0x00, 0x7f,
@@ -67,6 +67,108 @@ const unsigned char wifiIcon[] PROGMEM = {
   0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
+///heart ICON
+static const unsigned char PROGMEM logo2_bmp[] = {
+  0x03,
+  0xC0,
+  0xF0,
+  0x06,
+  0x71,
+  0x8C,
+  0x0C,
+  0x1B,
+  0x06,
+  0x18,
+  0x0E,
+  0x02,
+  0x10,
+  0x0C,
+  0x03,
+  0x10,
+  0x04,
+  0x01,
+  0x10,
+  0x04,
+  0x01,
+  0x10,
+  0x40,
+  0x01,
+  0x10,
+  0x40,
+  0x01,
+  0x10,
+  0xC0,
+  0x03,
+  0x08,
+  0x88,
+  0x02,
+  0x08,
+  0xB8,
+  0x04,
+  0xFF,
+  0x37,
+  0x08,
+  0x01,
+  0x30,
+  0x18,
+  0x01,
+  0x90,
+  0x30,
+  0x00,
+  0xC0,
+  0x60,
+  0x00,
+  0x60,
+  0xC0,
+  0x00,
+  0x31,
+  0x80,
+  0x00,
+  0x1B,
+  0x00,
+  0x00,
+  0x0E,
+  0x00,
+  0x00,
+  0x04,
+  0x00,
+};
+
+static const unsigned char PROGMEM logo3_bmp[] = { 0x01, 0xF0, 0x0F, 0x80, 0x06, 0x1C, 0x38, 0x60, 0x18, 0x06, 0x60, 0x18, 0x10, 0x01, 0x80, 0x08,
+                                                   0x20, 0x01, 0x80, 0x04, 0x40, 0x00, 0x00, 0x02, 0x40, 0x00, 0x00, 0x02, 0xC0, 0x00, 0x08, 0x03,
+                                                   0x80, 0x00, 0x08, 0x01, 0x80, 0x00, 0x18, 0x01, 0x80, 0x00, 0x1C, 0x01, 0x80, 0x00, 0x14, 0x00,
+                                                   0x80, 0x00, 0x14, 0x00, 0x80, 0x00, 0x14, 0x00, 0x40, 0x10, 0x12, 0x00, 0x40, 0x10, 0x12, 0x00,
+                                                   0x7E, 0x1F, 0x23, 0xFE, 0x03, 0x31, 0xA0, 0x04, 0x01, 0xA0, 0xA0, 0x0C, 0x00, 0xA0, 0xA0, 0x08,
+                                                   0x00, 0x60, 0xE0, 0x10, 0x00, 0x20, 0x60, 0x20, 0x06, 0x00, 0x40, 0x60, 0x03, 0x00, 0x40, 0xC0,
+                                                   0x01, 0x80, 0x01, 0x80, 0x00, 0xC0, 0x03, 0x00, 0x00, 0x60, 0x06, 0x00, 0x00, 0x30, 0x0C, 0x00,
+                                                   0x00, 0x08, 0x10, 0x00, 0x00, 0x06, 0x60, 0x00, 0x00, 0x03, 0xC0, 0x00, 0x00, 0x01, 0x80, 0x00 };
+
+
+
+/////SP02 ICON 24
+const unsigned char oksigen[] PROGMEM = {
+
+  0x30, 0x01, 0xc0, 0x4c, 0x06, 0x30, 0x84, 0x18, 0x0c, 0x80, 0x14, 0x04, 0x44, 0x28, 0x02, 0x6c, 
+	0x20, 0x02, 0x00, 0x00, 0x01, 0x03, 0xe0, 0x01, 0x0c, 0x18, 0x01, 0x10, 0x04, 0x02, 0x20, 0x02, 
+	0x02, 0x43, 0x81, 0x04, 0x44, 0xc1, 0x0c, 0x84, 0x40, 0xb0, 0x84, 0x40, 0x80, 0x84, 0x40, 0x80, 
+	0x84, 0x40, 0x80, 0x44, 0x58, 0x80, 0x46, 0xc9, 0x1c, 0x61, 0x19, 0x22, 0x20, 0x02, 0x21, 0x18, 
+	0x04, 0x21, 0x0e, 0x18, 0x12, 0x01, 0xe0, 0x0c
+
+};
+
+///32
+const unsigned char oksigen1[] PROGMEM = {
+
+	0x0c, 0x00, 0x0f, 0x00, 0x3e, 0x00, 0x3f, 0xc0, 0x41, 0x00, 0xc0, 0x30, 0x41, 0x01, 0x80, 0x18, 
+	0xc1, 0x83, 0x20, 0x0c, 0x41, 0x02, 0x40, 0x04, 0x41, 0x04, 0x80, 0x02, 0x3e, 0x04, 0x00, 0x02, 
+	0x08, 0x00, 0x00, 0x02, 0x00, 0x38, 0x00, 0x03, 0x01, 0xff, 0x00, 0x03, 0x06, 0x00, 0xc0, 0x02, 
+	0x0c, 0x00, 0x60, 0x02, 0x10, 0x00, 0x10, 0x02, 0x30, 0x00, 0x18, 0x04, 0x20, 0xf0, 0x08, 0x0c, 
+	0x41, 0x98, 0x04, 0x18, 0x41, 0x08, 0x04, 0x30, 0x43, 0x0c, 0x04, 0xc0, 0xc3, 0x0c, 0x06, 0x00, 
+	0xc3, 0x0c, 0x06, 0x00, 0xc3, 0x0c, 0x06, 0x00, 0x43, 0x0d, 0x84, 0x00, 0x41, 0x09, 0xc4, 0x00, 
+	0x41, 0x98, 0x84, 0x3c, 0x20, 0xf1, 0x88, 0x46, 0x30, 0x01, 0x98, 0x82, 0x10, 0x00, 0x10, 0x83, 
+	0x0c, 0x00, 0x60, 0x83, 0x06, 0x00, 0xc0, 0xc2, 0x01, 0xff, 0x00, 0x7c, 0x00, 0x38, 0x00, 0x18
+};
+
 
 int sensorDataHeart[REPORTING_PERIOD_MS];  // Array untuk menyimpan data
 int sensorDataOxy[REPORTING_PERIOD_MS];    // Array untuk menyimpan data
@@ -117,35 +219,34 @@ void ConnectWIFI() {
 
   WiFiManager wifiManager;
 
- // Coba untuk terhubung ke jaringan WiFi yang sudah disimpan
+  // Coba untuk terhubung ke jaringan WiFi yang sudah disimpan
   if (!wifiManager.autoConnect("ALKES")) {
     display.clearDisplay();
-          display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
+    display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
 
-          display.println("Mencari akses poin lain...");
-  display.display();
+    display.println("Mencari akses poin lain...");
+    display.display();
 
-        
+
 
     // Loop untuk mencoba terhubung ke jaringan WiFi baru
     while (!wifiManager.autoConnect()) {
-        display.clearDisplay();
+      display.clearDisplay();
 
-          display.setCursor(25, 50);
-           display.print("Connecting ...");
-  display.display();
+      display.setCursor(25, 50);
+      display.print("Connecting ...");
+      display.display();
 
       delay(1000);
     }
   }
 
-display.clearDisplay();
+  display.clearDisplay();
   display.setTextSize(1);
   display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
   display.setCursor(33, 50);
   display.print("Connected!");
   display.display();
-
 }
 ////////////////
 
@@ -178,14 +279,14 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0, 10);
-  
+
   display.clearDisplay();
-          display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
-    
-          display.setCursor(0, 45);
-          display.println("Sambungkan WiFi anda ke ALKES");
+  display.drawBitmap(44, 5, wifiIcon, 40, 40, WHITE);
+
+  display.setCursor(0, 45);
+  display.println("Sambungkan WiFi anda ke ALKES");
   display.display();
-display.display();
+  display.display();
 
   Serial.println("MPU6050 display demo");
 
@@ -196,7 +297,7 @@ display.display();
   }
   Serial.println("Found a MPU6050 sensor");
 
-  
+
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
@@ -223,7 +324,7 @@ display.display();
 
 
 void displayMenu() {
-  
+
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -403,12 +504,12 @@ void loop() {
   // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   Serial.println("");
 
-if(menuBerubah == 1){
-  display_jam_awal();
-  if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
-       menuBerubah = 0;
+  if (menuBerubah == 1) {
+    display_jam_awal();
+    if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+      menuBerubah = 0;
+    }
   }
-}
 
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
@@ -494,12 +595,38 @@ if(menuBerubah == 1){
       display.clearDisplay();
       display.setTextSize(1);
       display.setTextColor(WHITE);
-      display.setCursor(0, 0);
+      display.setCursor(10, 3);
+      bool logo = true;
 
-
-      display.print("DETAK JANTUNG: ");
+      // display.print("DETAK JANTUNG: ");
       if (bb > 0) {
-        display.print(modeValueHeart);
+        while (logo) {
+          if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+            break;
+          }
+          display.clearDisplay();  // Clear the display
+
+          // Draw and display logo2_bmp
+          display.drawBitmap(5, 5, logo2_bmp, 24, 21, WHITE);
+          display.println("");
+          display.setTextSize(2);
+          display.setCursor(0, 40);
+          display.print(modeValueHeart);
+          display.print(" BPM");
+          display.display();
+          delay(500);
+          display.clearDisplay();  // Clear the display
+
+          // Draw and display logo3_bmp
+          display.drawBitmap(0, 0, logo3_bmp, 32, 32, WHITE);
+          display.println("");
+          display.setTextSize(2);
+          display.setCursor(0, 40);
+          display.print(modeValueHeart);
+          display.print(" BPM");
+          display.display();
+          delay(500);
+        }
       } else {
         display.print("");
       }
@@ -507,11 +634,10 @@ if(menuBerubah == 1){
       display.display();
 
     } else if (menuOption == 1) {
+        // Aksi yang terkait dengan opsi pertama
       while (!pox.begin()) {
         Serial.println("FAILED");
       }
-
-
       display.clearDisplay();
       Serial.println("Counting...");
       display.setTextSize(1);
@@ -520,81 +646,93 @@ if(menuBerubah == 1){
       display.println("Counting...");
       display.display();
       data = "";
+      int oxy = 0;
+      int bb = 0;
 
-      int oxy = 0, countOxy = 0;
-
-      // int posX = 0, posY = 0, posZ = 0;
-      //
-
-      int aa = 0;
-      // baca pox
       for (int x = 0; x < REPORTING_PERIOD_MS; x++) {
         pox.update();
 
-        aa = pox.getSpO2();
+        bb = pox.getSpO2();
 
-        if (aa > 0) {
-          countOxy++;
-          oxy = oxy + aa;
+        if (bb > 0) {
+          oxy = oxy + bb;
           Serial.print(".");
-          sensorDataOxy[x] = aa;
+          sensorDataOxy[x] = bb;
         }
         delay(REPORTING_PERIOD_MS / 2);
       }
 
-
       int dataSizeOxy = sizeof(sensorDataOxy) / sizeof(sensorDataOxy[0]);
-
-
       int modeValueOxy = calculateMode(sensorDataOxy, dataSizeOxy);
 
       // Menampilkan hasil modus di Serial Monitor
+      for (int i = 0; i < REPORTING_PERIOD_MS; i++) {
+        Serial.print("Data ");
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(sensorDataHeart[i]);
+      }
 
+      Serial.print("Modus dari data heart adalah: ");
+      Serial.println(modeValueOxy);
+
+      ///serial
       display.clearDisplay();
       Serial.println("");
-
       Serial.print("oxy: ");
-      if (aa > 0) {
+      if (bb > 0) {
+        Serial.print("oxy: ");
+        Serial.println(oxy);
+        Serial.print("modus: ");
+
+
         Serial.print(modeValueOxy);
       } else {
         Serial.print("");
       }
       Serial.println("%");
 
+      ///display
       display.clearDisplay();
       display.setTextSize(1);
       display.setTextColor(WHITE);
-      display.setCursor(0, 0);
-      display.print("TINGKAT OKSIGEN: ");
-      if (aa > 0) {
-        display.print(modeValueOxy);
+      display.setCursor(10, 3);
+      bool logo = true;
+
+      // display.print("DETAK JANTUNG: ");
+      if (bb > 0) {
+        while (logo) {
+          if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+            break;
+          }
+          display.clearDisplay();  // Clear the display
+
+          // Draw and display logo2_bmp
+          display.drawBitmap(5, 5, oksigen, 24, 24, WHITE);
+          display.println("");
+          display.setTextSize(2);
+          display.setCursor(0, 40);
+          display.print(modeValueOxy);
+          display.print(" %");
+          display.display();
+          delay(500);
+          display.clearDisplay();  // Clear the display
+
+          // Draw and display logo3_bmp
+          display.drawBitmap(0, 0, oksigen1, 32, 32, WHITE);
+          display.println("");
+          display.setTextSize(2);
+          display.setCursor(0, 40);
+          display.print(modeValueOxy);
+          display.print(" %");
+          display.display();
+          delay(500);
+        }
       } else {
         display.print("");
       }
       display.println("%");
       display.display();
-
-    } else if (menuOption == 2) {
-      sensors_event_t a, g, temp;
-      mpu.getEvent(&a, &g, &temp);
-
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setTextColor(WHITE);
-      display.setCursor(0, 0);
-
-      display.println("AKSELOMETER:");
-      display.print("-X:");
-      display.println(a.acceleration.x, 1);
-      display.print("-Y:");
-      display.println(a.acceleration.y, 1);
-      display.print("-Z:");
-      display.println(a.acceleration.z, 1);
-      delay(100);
-      display.display();
-
-      //
-
 
     } else if (menuOption == 3) {
 
@@ -770,23 +908,20 @@ if(menuBerubah == 1){
 
 
 
-    } else if (menuOption == 5) {      
-        delay(1000);
+    } else if (menuOption == 5) {
+      delay(1000);
 
 
-      while(customAll){
-          display_jam_awal();
+      while (customAll) {
+        display_jam_awal();
 
-          if(digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW){
-            break;
+        if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
+          break;
 
-//TRUE         
-//CONDITION  OR FALSE
- 
-                        
-          }
-        
-      }      
+          //TRUE
+          //CONDITION  OR FALSE
+        }
+      }
     }
 
     Serial.println(menuOption);
@@ -795,11 +930,11 @@ if(menuBerubah == 1){
 
 
 void updateDisplay(String timeStr, String dateStr) {
-  display.clearDisplay();  
-     display.setTextSize(1);
-        display.setTextColor(WHITE);
-        display.setCursor(0, 0);
-        
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+
   int screenWidth = 128;  // Lebar layar display
   // Mengatur koordinat x berdasarkan lebar layar
   int xRect = screenWidth - 3.5 - 20;
@@ -817,17 +952,17 @@ void updateDisplay(String timeStr, String dateStr) {
   display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   display.print("%");
   display.println("");
-  
+
   display.setTextColor(WHITE);
   display.setTextSize(1);
   display.println(dateStr);
 
 
 
-       // display_battery();
+  // display_battery();
 
-        display.setTextSize(3);
-        display.setCursor(0, 25);
+  display.setTextSize(3);
+  display.setCursor(0, 25);
 
   display.println(timeStr);
   display.display();
@@ -835,38 +970,37 @@ void updateDisplay(String timeStr, String dateStr) {
 
 void display_jam_awal() {
 
-  unsigned long lastMinute = 61; // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
-   time_t epochTime = timeClient.getEpochTime();
+  unsigned long lastMinute = 61;  // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
+  time_t epochTime = timeClient.getEpochTime();
 
-  struct tm *ptm = gmtime ((time_t *)&epochTime); 
+  struct tm* ptm = gmtime((time_t*)&epochTime);
 
-  
- timeClient.update(); // Memperbarui waktu dari server NTP
- int day = ptm->tm_mday;
-  int month = ptm->tm_mon+1;
-  int year = ptm->tm_year+1900 ; 
 
-  // Periksa apakah menit telah berubah 
+  timeClient.update();  // Memperbarui waktu dari server NTP
+  int day = ptm->tm_mday;
+  int month = ptm->tm_mon + 1;
+  int year = ptm->tm_year + 1900;
+
+  // Periksa apakah menit telah berubah
   if (timeClient.getSeconds() > 0 && timeClient.getMinutes() != lastMinute) {
     lastMinute = timeClient.getMinutes();
 
     String mins;
-    if( timeClient.getMinutes() < 10){
-      mins = "0"+ String(timeClient.getMinutes());
-    }else{
-      mins =  String(timeClient.getMinutes());
+    if (timeClient.getMinutes() < 10) {
+      mins = "0" + String(timeClient.getMinutes());
+    } else {
+      mins = String(timeClient.getMinutes());
     }
 
-    String timeStr = String(timeClient.getHours()) + ":" + mins ;
-    String dateStr = String(day)+"/"+String(month)+"/"+String(year);     
+    String timeStr = String(timeClient.getHours()) + ":" + mins;
+    String dateStr = String(day) + "/" + String(month) + "/" + String(year);
 
-    updateDisplay(timeStr,dateStr);
+    updateDisplay(timeStr, dateStr);
 
     Serial.println(timeStr);
   }
 
-  delay(1000); // Tunggu selama 1 detik sebelum memeriksa kembali     
-
+  delay(1000);  // Tunggu selama 1 detik sebelum memeriksa kembali
 }
 
 
