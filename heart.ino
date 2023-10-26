@@ -781,7 +781,8 @@ if(menuBerubah == 1){
             break;
 
 //TRUE         
-//CONDITION   
+//CONDITION  OR FALSE
+ 
                         
           }
         
