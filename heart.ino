@@ -90,54 +90,26 @@ bool customAll = true;
 
 
 
-void display_battery() {
-  display.clearDisplay();
 
-  int screenWidth = 128;  // Lebar layar display
-  // Mengatur koordinat x berdasarkan lebar layar
-  int xRect = screenWidth - 3.5 - 20;
-  xRect -= 5;
-  int xText = screenWidth - 3.5 - 20;
-  int xText2 = screenWidth - 0.5 - 15;
+// void display_battery() {
+//   display.clearDisplay();
 
-  display.drawRect(xRect, 5, 25, 10, WHITE);
-  display.drawRect(xRect + 25, 7.5, 2.5, 5, WHITE);
-  display.fillRect(xRect, 5, (2 * map(BL.getBatteryChargeLevel(), 0, 10, 0, 100) / 8), 10, WHITE);
-  if (map(BL.getBatteryChargeLevel(), 0, 10, 0, 100) <= 50) {
-    // Mengatur warna teks menjadi putih
-    display.setTextColor(WHITE);
-    display.setTextSize(1);
+//   display.display();
+//   //delay(200);
 
-    // Menempatkan teks "battery" di sebelah kanan objek
-    display.setCursor(xText2, 5 + 2);
-    display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-    display.display();
-    delay(200);
-  } else {
-    // Mengatur warna teks menjadi hitam
-    display.setTextColor(BLACK);
-    display.setTextSize(1);
+//   // String formattedTime = timeClient.getFormattedTime();  // Assuming formattedTime is in format "HH:MM:SS"
 
-    // Menempatkan teks "battery" di sebelah kanan objek
-    display.setCursor(xText, 5 + 2);
-    display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-    display.display();
-    delay(200);
-  }
+//   // int colonPos = formattedTime.indexOf(':');
 
-  String formattedTime = timeClient.getFormattedTime();  // Assuming formattedTime is in format "HH:MM:SS"
+//   // // Extract hour substring
+//   // String hourString = formattedTime.substring(0, colonPos);
 
-  int colonPos = formattedTime.indexOf(':');
+//   // // Extract minute substring
+//   // String minuteString = formattedTime.substring(colonPos + 1, colonPos + 3);  // Assumes minutes are always two digits
 
-  // Extract hour substring
-  String hourString = formattedTime.substring(0, colonPos);
-
-  // Extract minute substring
-  String minuteString = formattedTime.substring(colonPos + 1, colonPos + 3);  // Assumes minutes are always two digits
-
-  int hour = hourString.toInt();      // Convert string to integer
-  int minute = minuteString.toInt();  // Convert string to integerg
-}
+//   // int hour = hourString.toInt();      // Convert string to integer
+//   // int minute = minuteString.toInt();  // Convert string to integerg
+// }
 
 bool cek = true;
 
@@ -798,9 +770,19 @@ if(menuBerubah == 1){
 
 
 
-    } else if (menuOption == 5) {
+    } else if (menuOption == 5) {      
+        delay(1000);
+
+
+      while(customAll){
           display_jam_awal();
 
+          if(digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW){
+            break;
+                        
+          }
+        
+      }      
     }
 
     Serial.println(menuOption);
@@ -809,10 +791,28 @@ if(menuBerubah == 1){
 
 
 void updateDisplay(String timeStr) {
-  display.clearDisplay();
+  display.clearDisplay();  
      display.setTextSize(1);
         display.setTextColor(WHITE);
         display.setCursor(0, 0);
+        
+  int screenWidth = 128;  // Lebar layar display
+  // Mengatur koordinat x berdasarkan lebar layar
+  int xRect = screenWidth - 3.5 - 20;
+  xRect -= 5;
+  int xText = screenWidth - 3.5 - 20;
+  int xText2 = screenWidth - 0.5 - 24;
+
+  display.drawRect(xRect, 5, 25, 10, WHITE);
+  display.drawRect(xRect + 25, 7.5, 2.5, 5, WHITE);
+
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  // Menempatkan teks "battery" di sebelah kanan objek
+  display.setCursor(xText2, 5 + 2);
+  display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+  display.print("%");
+  
 
 
 
@@ -828,14 +828,21 @@ void display_jam_awal() {
 
   unsigned long lastMinute = 61; // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
 
-
+  
  timeClient.update(); // Memperbarui waktu dari server NTP
 
   // Periksa apakah menit telah berubah 
   if (timeClient.getSeconds() > 0 && timeClient.getMinutes() != lastMinute) {
     lastMinute = timeClient.getMinutes();
 
-    String timeStr = String(timeClient.getHours()) + ":" + String(timeClient.getMinutes()) ;
+    String mins;
+    if( timeClient.getMinutes() < 10){
+      mins = "0"+ String(timeClient.getMinutes());
+    }else{
+      mins =  String(timeClient.getMinutes());
+    }
+
+    String timeStr = String(timeClient.getHours()) + ":" + mins ;
 
     updateDisplay(timeStr);
 
