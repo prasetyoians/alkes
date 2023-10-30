@@ -901,7 +901,7 @@ void loop() {
       display.print("SUHU:");
       display.print(mlx.readObjectTempC());
       display.println("C");
-
+      int suhus = mlx.readObjectTempC();
       // mpu
       sensors_event_t a, g, temp;
       mpu.getEvent(&a, &g, &temp);
@@ -914,11 +914,36 @@ void loop() {
       display.print("-Z:");
       display.println(a.acceleration.z, 1);
       display.display();
-      String serverName2 = "http://127.0.0.1:3000/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z);
 
-      String sensorReadings = httpGETRequest(serverName2);
-      Serial.println(sensorReadings);
+      String serverName2 = "http://192.168.43.76:3000/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
+
+      WiFiClient client;
+  HTTPClient http;
+
+  // Your Domain name with URL path or IP address with path
+  http.begin(client, serverName2);
+
+  // If you need Node-RED/server authentication, insert user and password below
+  //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+
+  // Send HTTP POST request
+  int httpResponseCode = http.GET();
+
+  String payload = "{}";
+
+  if (httpResponseCode > 0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+    payload = http.getString();
+  } else {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+  }
+  // Free resources
+  http.end();
+
       Serial.println(serverName2);
+
 
     } else if (menuOption == 5) {
       delay(1000);
