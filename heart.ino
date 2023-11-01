@@ -27,7 +27,7 @@ Pangodream_18650_CL BL;
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-#define SIZEMPU 60 //ganti ini jika ingin mengubah size mpu
+#define SIZEMPU 60  //ganti ini jika ingin mengubah size mpu
 
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
@@ -62,8 +62,34 @@ int x0 = 0;
 
 int nomor = 0;
 unsigned long previousMillis = 0;  // Waktu terakhir kali tugas dilakukan
-const long interval = 60000; //ganti ini jika pengen mengubah waktu mpu
+const long interval = 60000;       //ganti ini jika pengen mengubah waktu mpu
+////battery
+int sensorValue;
+int casIndikator;
+float voltage;
+int bat_percentage;
 
+unsigned long startTime;
+unsigned long currentTime;
+const unsigned long measurementInterval = 1000;   // Interval pembacaan setiap detik (1000 ms)
+const unsigned long measurementDuration = 10000;  // Durasi pengumpulan data (30 detik)
+int analogInPin = 34;                             // Analog input pin
+int pinCas = 32;
+
+int measurementCount = 0;
+float voltageSum = 0;
+float batPercentageSum = 0;
+int averageBatPercentage;
+int previousBatPercentage = 101;
+int previousBatPercentageCas = 0;
+
+int dsp;
+///End battery
+//// petirCas, 16x16px
+const unsigned char petir[] PROGMEM = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x40, 0x00, 0x80, 0x01, 0x80, 0x03, 0xf0,
+  0x07, 0xe0, 0x00, 0xc0, 0x00, 0x80, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
 
 // 'wifi by Freepik', 40x40px ICON
 const unsigned char wifiIcon[] PROGMEM = {
@@ -249,26 +275,6 @@ bool customLoopActive = true;
 
 bool customAll = true;
 
-// void display_battery() {
-//   display.clearDisplay();
-
-//   display.display();
-//   //delay(200);
-
-//   // String formattedTime = timeClient.getFormattedTime();  // Assuming formattedTime is in format "HH:MM:SS"
-
-//   // int colonPos = formattedTime.indexOf(':');
-
-//   // // Extract hour substring
-//   // String hourString = formattedTime.substring(0, colonPos);
-
-//   // // Extract minute substring
-//   // String minuteString = formattedTime.substring(colonPos + 1, colonPos + 3);  // Assumes minutes are always two digits
-
-//   // int hour = hourString.toInt();      // Convert string to integer
-//   // int minute = minuteString.toInt();  // Convert string to integerg
-// }
-
 bool cek = true;
 
 void ConnectWIFI() {
@@ -321,7 +327,7 @@ void setup() {
   // WiFiManager wifiManager;
 
   // wifiManager.autoConnect("ALKES");  // "AutoConnectAP" is the name of the access point
-
+  pinMode(pinCas, INPUT);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {  // Address 0x3C for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     for (;;)
@@ -473,7 +479,7 @@ void loop() {
   // Serial.print("Hasil mapping: ");
   // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   Serial.println("");
-deteksi_gerak();
+  deteksi_gerak();
 
 
   if (menuBerubah == 1) {
@@ -934,29 +940,29 @@ deteksi_gerak();
       String serverName2 = "http://192.168.43.76:3000/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
 
       WiFiClient client;
-  HTTPClient http;
+      HTTPClient http;
 
-  // Your Domain name with URL path or IP address with path
-  http.begin(client, serverName2);
+      // Your Domain name with URL path or IP address with path
+      http.begin(client, serverName2);
 
-  // If you need Node-RED/server authentication, insert user and password below
-  //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+      // If you need Node-RED/server authentication, insert user and password below
+      //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
 
-  // Send HTTP POST request
-  int httpResponseCode = http.GET();
+      // Send HTTP POST request
+      int httpResponseCode = http.GET();
 
-  String payload = "{}";
+      String payload = "{}";
 
-  if (httpResponseCode > 0) {
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-    payload = http.getString();
-  } else {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
-  }
-  // Free resources
-  http.end();
+      if (httpResponseCode > 0) {
+        Serial.print("HTTP Response code: ");
+        Serial.println(httpResponseCode);
+        payload = http.getString();
+      } else {
+        Serial.print("Error code: ");
+        Serial.println(httpResponseCode);
+      }
+      // Free resources
+      http.end();
 
       Serial.println(serverName2);
 
@@ -978,11 +984,11 @@ deteksi_gerak();
     Serial.println(menuOption);
   }
 
-x0++;
+  x0++;
 }
 
 
-void deteksi_gerak(){
+void deteksi_gerak() {
 
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
@@ -1000,7 +1006,7 @@ void deteksi_gerak(){
 
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    
+
     int dataSizeAcc = sizeof(sensorDataAcc) / sizeof(sensorDataAcc[0]);
     int modeValueAcc = calculateMode(sensorDataAcc, dataSizeAcc);
 
@@ -1008,42 +1014,36 @@ void deteksi_gerak(){
     Serial.print("Modus dari data Acc adalah: ");
     Serial.println(modeValueAcc);
 
-    if(modeValueAcc >= 20){
+    if (modeValueAcc >= 20) {
       Serial.println("Anda Banyak bergerak dengan gerakan yang aktif");
-    }else if(modeValueAcc >=11 && modeValueAcc <20 ){
+    } else if (modeValueAcc >= 11 && modeValueAcc < 20) {
       Serial.println("Anda Lumayan banyak bergerak bergerak tapi harus ditingkatkan");
 
-    }else if(modeValueAcc <= 10 ){
+    } else if (modeValueAcc <= 10) {
       Serial.println("Anda Kurang Gerak!");
-      
     }
-
-  
-  
   }
 
 
-    if(x0 == SIZEMPU){
-        
-            sensorDataAcc[SIZEMPU] = {};
-        x0 = 0;
-      }
+  if (x0 == SIZEMPU) {
 
- 
-
-
-// x0++;
-  //delay(1000);  // Sesuaikan delay sesuai kebutuhan  
+    sensorDataAcc[SIZEMPU] = {};
+    x0 = 0;
+  }
+  // x0++;
+  //delay(1000);  // Sesuaikan delay sesuai kebutuhan
 }
 
 
 void resetArray(int arr[], int size) {
   for (int i = 0; i < size; i++) {
-    arr[i] = 0; 
+    arr[i] = 0;
   }
 }
 
-
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 void updateDisplay(String timeStr, String dateStr) {
   display.clearDisplay();
@@ -1063,10 +1063,140 @@ void updateDisplay(String timeStr, String dateStr) {
 
   display.setTextColor(WHITE);
   display.setTextSize(1);
+  sensorValue = analogRead(analogInPin);
+  casIndikator = digitalRead(pinCas);
+  voltage = mapfloat(sensorValue, 2090, 1670, 3.7, 3.0);
+  bat_percentage = mapfloat(sensorValue, 2090, 1670, 100, 0);
+
+  Serial.print("Cas Value = ");
+  Serial.print(casIndikator);
+  Serial.print("\t Analog Value = ");
+  Serial.print(sensorValue);
+  // Serial.print("\t Output Voltage = ");
+  // Serial.print(voltage);
+  Serial.print("\t Battery Percentage = ");
+  Serial.println(bat_percentage);
+  if (dsp == 1) {
+    display.setCursor(xText2, 5 + 2);
+    display.print(averageBatPercentage);
+    display.drawBitmap(xText2 - 25, 1 + 1, petir, 16, 16, WHITE);
+  } else if (dsp == 2) {
+    display.setCursor(xText2, 5 + 2);
+    display.print(previousBatPercentageCas);
+    display.drawBitmap(xText2 - 25, 1 + 1, petir, 16, 16, WHITE);
+  } else if (dsp == 3) {
+    display.setCursor(xText2, 5 + 2);
+    display.print(averageBatPercentage);
+  } else if (dsp == 4) {
+    display.setCursor(xText2, 5 + 2);
+    display.print(previousBatPercentage);
+  } else {
+    Serial.print("Tidak Kebaca!!!!");
+  }
+  currentTime = millis();
+  if (casIndikator > 0) {
+    if (currentTime - startTime < measurementDuration) {
+      if (currentTime - startTime >= measurementCount * measurementInterval) {
+        voltageSum += voltage;
+        batPercentageSum += bat_percentage;
+        measurementCount++;
+      }
+    } else {
+      if (measurementCount > 0) {
+        float averageVoltage = voltageSum / measurementCount;
+        averageBatPercentage = batPercentageSum / measurementCount;
+
+        // Serial.print("Average Voltage = ");
+        // Serial.print(averageVoltage);
+
+        if (averageBatPercentage > previousBatPercentageCas) {
+          dsp = 1;
+          // Update previousBatPercentage jika averageBatPercentage lebih kecil
+          if (averageBatPercentage < 0) {
+            averageBatPercentage = -averageBatPercentage;
+            if (averageBatPercentage > 100) {
+              averageBatPercentage = 100;
+            }
+          }
+
+          previousBatPercentageCas = averageBatPercentage;
+          previousBatPercentage = previousBatPercentageCas;
+          Serial.print("\t Average Battery Percentage (Updated CAS) = ");
+          Serial.println(averageBatPercentage);
+
+        } else {
+          dsp = 2;
+          Serial.print("\t Average Battery Percentage (CAS) = ");
+          Serial.println(previousBatPercentageCas);
+        }
+      }
+      // Reset variabel untuk pengukuran berikutnya
+      startTime = millis();
+      if (averageBatPercentage > previousBatPercentageCas) {
+
+      } else {
+      }
+      measurementCount = 0;
+      voltageSum = 0;
+      batPercentageSum = 0;
+    }
+  } else {
+    if (currentTime - startTime < measurementDuration) {
+      if (currentTime - startTime >= measurementCount * measurementInterval) {
+        voltageSum += voltage;
+        batPercentageSum += bat_percentage;
+        measurementCount++;
+      }
+    } else {
+      if (measurementCount > 0) {
+        float averageVoltage = voltageSum / measurementCount;
+        averageBatPercentage = batPercentageSum / measurementCount;
+
+        // Serial.print("Average Voltage = ");
+        // Serial.print(averageVoltage);
+
+        if (averageBatPercentage < previousBatPercentage) {
+          dsp = 3;
+          // Update previousBatPercentage jika averageBatPercentage lebih kecil
+          if (averageBatPercentage < 0) {
+            averageBatPercentage = -averageBatPercentage;
+            if (averageBatPercentage > 100) {
+              averageBatPercentage = 100;
+            }
+          }
+          previousBatPercentage = averageBatPercentage;
+          previousBatPercentageCas = previousBatPercentage;
+          Serial.print("\t Average Battery Percentage (Update) = ");
+          Serial.println(averageBatPercentage);
+
+        } else {
+          dsp = 4;
+          Serial.print("\t Average Battery Percentage (NORMAL) = ");
+          Serial.println(previousBatPercentage);
+        }
+      }
+
+      // Reset variabel untuk pengukuran berikutnya
+      startTime = millis();
+      if (averageBatPercentage < previousBatPercentage) {
+        // Serial.println(averageBatPercentage);
+        // display.setCursor(xText2, 5 + 2);
+        // display.print(averageBatPercentage);
+      } else {
+        // Serial.println(previousBatPercentage);
+        // display.setCursor(xText2, 5 + 2);
+        // display.print(previousBatPercentage);
+      }
+      measurementCount = 0;
+      voltageSum = 0;
+      batPercentageSum = 0;
+    }
+  }
+
   // Menempatkan teks "battery" di sebelah kanan objek
-  display.setCursor(xText2, 5 + 2);
-  display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
-  
+  // display.setCursor(xText2, 5 + 2);
+  // display.print(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
+
   display.println("");
 
   display.setTextColor(WHITE);
@@ -1079,12 +1209,10 @@ void updateDisplay(String timeStr, String dateStr) {
 
   display.println(timeStr);
   display.display();
+  // delay(1000);
 }
 
 void display_jam_awal() {
-
-
-
   unsigned long lastMinute = 61;  // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
   time_t epochTime = timeClient.getEpochTime();
 
