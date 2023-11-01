@@ -27,6 +27,8 @@ Pangodream_18650_CL BL;
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
+#define SIZEMPU 60 //ganti ini jika ingin mengubah size mpu
+
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
@@ -50,6 +52,18 @@ int currentState;     // the current reading from the input pin
 
 
 #define REPORTING_PERIOD_MS 200
+
+
+
+int sensorDataAcc[SIZEMPU];  // Array untuk menyimpan data
+
+int x0 = 0;
+
+
+int nomor = 0;
+unsigned long previousMillis = 0;  // Waktu terakhir kali tugas dilakukan
+const long interval = 60000; //ganti ini jika pengen mengubah waktu mpu
+
 
 // 'wifi by Freepik', 40x40px ICON
 const unsigned char wifiIcon[] PROGMEM = {
@@ -459,6 +473,8 @@ void loop() {
   // Serial.print("Hasil mapping: ");
   // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   Serial.println("");
+deteksi_gerak();
+
 
   if (menuBerubah == 1) {
     display_jam_awal();
@@ -961,7 +977,73 @@ void loop() {
 
     Serial.println(menuOption);
   }
+
+x0++;
 }
+
+
+void deteksi_gerak(){
+
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+
+  int totalAcc = sqrt(a.acceleration.x * a.acceleration.x + a.acceleration.y * a.acceleration.y + a.acceleration.z * a.acceleration.z);
+  Serial.print("Total Akselerasi ke-");
+  Serial.print(x0);
+  Serial.print(": ");
+  Serial.println(totalAcc);
+
+  sensorDataAcc[x0] = totalAcc;
+
+
+  unsigned long currentMillis = millis();  // Mendapatkan waktu saat ini
+
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    
+    int dataSizeAcc = sizeof(sensorDataAcc) / sizeof(sensorDataAcc[0]);
+    int modeValueAcc = calculateMode(sensorDataAcc, dataSizeAcc);
+
+
+    Serial.print("Modus dari data Acc adalah: ");
+    Serial.println(modeValueAcc);
+
+    if(modeValueAcc >= 20){
+      Serial.println("Anda Banyak bergerak dengan gerakan yang aktif");
+    }else if(modeValueAcc >=11 && modeValueAcc <20 ){
+      Serial.println("Anda Lumayan banyak bergerak bergerak tapi harus ditingkatkan");
+
+    }else if(modeValueAcc <= 10 ){
+      Serial.println("Anda Kurang Gerak!");
+      
+    }
+
+  
+  
+  }
+
+
+    if(x0 == SIZEMPU){
+        
+            sensorDataAcc[SIZEMPU] = {};
+        x0 = 0;
+      }
+
+ 
+
+
+// x0++;
+  //delay(1000);  // Sesuaikan delay sesuai kebutuhan  
+}
+
+
+void resetArray(int arr[], int size) {
+  for (int i = 0; i < size; i++) {
+    arr[i] = 0; 
+  }
+}
+
+
 
 void updateDisplay(String timeStr, String dateStr) {
   display.clearDisplay();
@@ -1000,6 +1082,8 @@ void updateDisplay(String timeStr, String dateStr) {
 }
 
 void display_jam_awal() {
+
+
 
   unsigned long lastMinute = 61;  // Inisialisasi dengan angka yang tidak mungkin dalam menit (1 lebih dari 60)
   time_t epochTime = timeClient.getEpochTime();
