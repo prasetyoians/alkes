@@ -1068,14 +1068,14 @@ void updateDisplay(String timeStr, String dateStr) {
   voltage = mapfloat(sensorValue, 2090, 1670, 3.7, 3.0);
   bat_percentage = mapfloat(sensorValue, 2090, 1670, 100, 0);
 
-  Serial.print("Cas Value = ");
-  Serial.print(casIndikator);
-  Serial.print("\t Analog Value = ");
-  Serial.print(sensorValue);
-  // Serial.print("\t Output Voltage = ");
-  // Serial.print(voltage);
-  Serial.print("\t Battery Percentage = ");
-  Serial.println(bat_percentage);
+  // Serial.print("Cas Value = ");
+  // Serial.print(casIndikator);
+  // Serial.print("\t Analog Value = ");
+  // Serial.print(sensorValue);
+  // // Serial.print("\t Output Voltage = ");
+  // // Serial.print(voltage);
+  // Serial.print("\t Battery Percentage = ");
+  // Serial.println(bat_percentage);
   if (dsp == 1) {
     display.setCursor(xText2, 5 + 2);
     display.print(averageBatPercentage);
