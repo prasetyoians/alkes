@@ -12,8 +12,9 @@
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
 
-
 #include <Adafruit_MLX90614.h>
+
+#include <Arduino_JSON.h>
 
 #include <Pangodream_18650_CL.h>
 Pangodream_18650_CL BL;
@@ -27,7 +28,7 @@ Pangodream_18650_CL BL;
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-#define SIZEMPU 60  //ganti ini jika ingin mengubah size mpu
+#define SIZEMPU 10  //ganti ini jika ingin mengubah size mpu
 
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
@@ -39,12 +40,15 @@ const char* password = "123412345";
 int plus;
 Adafruit_MPU6050 mpu;
 
-int menuOption = 5;  // Opsi menu saat ini
+int menuOption = 4;  // Opsi menu saat ini
 int menuBerubah = 1;
 
-#define BUTTON_PIN 21    // GIOP21 pin connected to button
+#define BUTTON_PIN 27    // GIOP21 pin connected to button
 #define BUTTON_ATAS 19   // GIOP21 pin connected to button
 #define BUTTON_BAWAH 18  // GIOP21 pin connected to button
+const int buzzerPin = 25;  // Change this to your actual buzzer pin
+
+
 
 // Variables will change:
 int lastState = LOW;  // the previous state from the input pin
@@ -56,6 +60,8 @@ int currentState;     // the current reading from the input pin
 
 
 int sensorDataAcc[SIZEMPU];  // Array untuk menyimpan data
+int hasilAkselo[2];
+String hasilAkseloString[1];
 
 int x0 = 0;
 
@@ -63,6 +69,7 @@ int x0 = 0;
 int nomor = 0;
 unsigned long previousMillis = 0;  // Waktu terakhir kali tugas dilakukan
 const long interval = 60000;       //ganti ini jika pengen mengubah waktu mpu
+
 ////battery
 int sensorValue;
 int casIndikator;
@@ -263,6 +270,9 @@ int sensorDataSuhu[10];                    // Array untuk menyimpan data
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+
+
+
 PulseOximeter pox;
 
 uint32_t tsLastReport = 0;
@@ -323,7 +333,7 @@ void setup() {
   // Serial.println(WiFi.localIP());
 
   // Start WiFiManager for configuration
-  // wifiManager.resetSettings();
+  // wifiManager.resetSettings();menu
   // WiFiManager wifiManager;
 
   // wifiManager.autoConnect("ALKES");  // "AutoConnectAP" is the name of the access point
@@ -376,6 +386,8 @@ void setup() {
     // while (1)
     //   ;
   };
+  
+  pinMode(buzzerPin, OUTPUT);
 }
 void displayMenu() {
 
@@ -392,7 +404,7 @@ void displayMenu() {
       display.println("DETAK JANTUNG");
       display.setTextColor(SSD1306_WHITE);
       display.println("SPO2");
-      display.println("AKSELERASI");
+      //display.println("AKSELERASI");
       display.println("SUHU");
       display.println("SEMUA DATA");
       display.println("BERANDA");
@@ -403,56 +415,47 @@ void displayMenu() {
       display.setTextColor(SSD1306_BLACK);
       display.println("SPO2");
       display.setTextColor(SSD1306_WHITE);
-      display.println("AKSELERASI");
+      //display.println("AKSELERASI");
       display.println("SUHU");
       display.println("SEMUA DATA");
       display.println("BERANDA");
+      break;
+
+
       break;
     case 2:
       display.println("DETAK JANTUNG");
       display.println("SPO2");
+      // display.println("AKSELERASI");
+
       display.fillRect(0, 16, 128, 8, SSD1306_WHITE);
       display.setTextColor(SSD1306_BLACK);
-      display.println("AKSELERASI");
-      display.setTextColor(SSD1306_WHITE);
       display.println("SUHU");
+      display.setTextColor(SSD1306_WHITE);
       display.println("SEMUA DATA");
       display.println("BERANDA");
-
       break;
     case 3:
       display.println("DETAK JANTUNG");
       display.println("SPO2");
-      display.println("AKSELERASI");
+      // display.println("AKSELERASI");
+      display.println("SUHU");
 
       display.fillRect(0, 24, 128, 8, SSD1306_WHITE);
       display.setTextColor(SSD1306_BLACK);
-      display.println("SUHU");
-      display.setTextColor(SSD1306_WHITE);
       display.println("SEMUA DATA");
+      display.setTextColor(SSD1306_WHITE);
       display.println("BERANDA");
       break;
     case 4:
+
       display.println("DETAK JANTUNG");
       display.println("SPO2");
-      display.println("AKSELERASI");
+      // display.println("AKSELERASI");
       display.println("SUHU");
+      display.println("SEMUA DATA");
 
       display.fillRect(0, 32, 128, 8, SSD1306_WHITE);
-      display.setTextColor(SSD1306_BLACK);
-      display.println("SEMUA DATA");
-      display.setTextColor(SSD1306_WHITE);
-      display.println("BERANDA");
-      break;
-    case 5:
-
-      display.println("DETAK JANTUNG");
-      display.println("SPO2");
-      display.println("AKSELERASI");
-      display.println("SUHU");
-      display.println("SEMUA DATA");
-
-      display.fillRect(0, 40, 128, 8, SSD1306_WHITE);
       display.setTextColor(SSD1306_BLACK);
       display.println("BERANDA");
       break;
@@ -480,6 +483,7 @@ void loop() {
   // Serial.println(map(BL.getBatteryChargeLevel(), 0, 10, 0, 100));
   Serial.println("");
   deteksi_gerak();
+  cek_jadwal();
 
 
   if (menuBerubah == 1) {
@@ -492,7 +496,7 @@ void loop() {
   if (digitalRead(BUTTON_ATAS) == LOW) {
     menuOption--;
     if (menuOption < 0) {
-      menuOption = 5;  // Jumlah opsi menu minus satu
+      menuOption = 4;  // Jumlah opsi menu minus satu
     }
     displayMenu();
     delay(200);  // Hindari bouncing tombol
@@ -500,7 +504,7 @@ void loop() {
 
   if (digitalRead(BUTTON_BAWAH) == LOW) {
     menuOption++;
-    if (menuOption > 5) {
+    if (menuOption > 4) {
       menuOption = 0;
     }
     displayMenu();
@@ -713,63 +717,6 @@ void loop() {
       display.display();
 
     } else if (menuOption == 2) {
-      sensors_event_t a, g, temp;
-      mpu.getEvent(&a, &g, &temp);
-
-      display.clearDisplay();
-      display.setTextSize(1);
-      display.setTextColor(WHITE);
-      display.setCursor(0, 0);
-
-      bool logo = true;
-      while (logo) {
-        if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
-          break;
-        }
-        display.clearDisplay();  // Clear the display
-
-        // Draw and display logo2_bmp
-        display.drawBitmap(0, 0, jalan1, 32, 32, WHITE);
-        display.println("");
-        display.setTextSize(1);
-        display.setCursor(0, 40);
-        display.println("AKSELOMETER:");
-        display.print("-X:");
-        display.print(a.acceleration.x, 1);
-        display.print(", -Y:");
-        display.print(a.acceleration.y, 1);
-        display.print(", -Z:");
-        display.print(a.acceleration.z, 1);
-
-        display.display();
-        delay(500);
-        display.clearDisplay();  // Clear the display
-
-        // Draw and display logo3_bmp
-        display.drawBitmap(0, 0, jalan2, 32, 32, WHITE);
-        display.println("");
-        display.setTextSize(1);
-        display.setCursor(0, 40);
-
-        display.println("AKSELOMETER:");
-        display.print("-X:");
-        display.print(a.acceleration.x, 1);
-        display.print(", -Y:");
-        display.print(a.acceleration.y, 1);
-        display.print(", -Z:");
-        display.print(a.acceleration.z, 1);
-
-        display.display();
-        delay(500);
-      }
-
-      delay(100);
-      display.display();
-
-      //
-
-
-    } else if (menuOption == 3) {
 
       display.clearDisplay();
       display.setTextSize(1);
@@ -823,7 +770,7 @@ void loop() {
         delay(500);
       }
 
-    } else if (menuOption == 4) {
+    } else if (menuOption == 3) {
       while (!pox.begin()) {
         Serial.println("FAILED");
       }
@@ -909,7 +856,7 @@ void loop() {
         display.print("");
       }
       display.println("BPM ");
-
+      display.println("");
 
       display.print("TINGKAT OKSIGEN: ");
       if (aa > 0) {
@@ -918,32 +865,40 @@ void loop() {
         display.print("");
       }
       display.println("%");
-
+      display.println("");
       //mlx
       display.print("SUHU:");
       display.print(mlx.readObjectTempC());
       display.println("C");
       int suhus = mlx.readObjectTempC();
+      display.println("");
       // mpu
       sensors_event_t a, g, temp;
       mpu.getEvent(&a, &g, &temp);
 
-      display.println("AKSELOMETER :");
-      display.print("-X: ");
-      display.println(a.acceleration.x, 1);
-      display.print("-Y:");
-      display.println(a.acceleration.y, 1);
-      display.print("-Z:");
-      display.println(a.acceleration.z, 1);
+      // display.println("AKSELOMETER :");
+      // display.print("-X: ");
+      // display.println(a.acceleration.x, 1);
+      // display.print("-Y:");
+      // display.println(a.acceleration.y, 1);
+      // display.print("-Z:");
+      // display.println(a.acceleration.z, 1);
       display.display();
-
-      String serverName2 = "http://192.168.43.76:3000/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
 
       WiFiClient client;
       HTTPClient http;
+      String serverName2 = "https://node-heart-prasetyoians.vercel.app/senddatatosps";
+      // url += "?hr=70&spo2=96&akselox=1&akseloy=2&akseloz=1&suhu=36";
+      serverName2 += "?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
+      // String serverName2 = "https://node-heart-prasetyoians.vercel.app/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
+
+      Serial.print("Sending GET request to: ");
+      Serial.println(serverName2);
+
 
       // Your Domain name with URL path or IP address with path
-      http.begin(client, serverName2);
+      http.begin(serverName2);
+
 
       // If you need Node-RED/server authentication, insert user and password below
       //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
@@ -951,14 +906,31 @@ void loop() {
       // Send HTTP POST request
       int httpResponseCode = http.GET();
 
-      String payload = "{}";
+      // String payload = "{}";
+      if (httpResponseCode == 308) {
+        Serial.println("Received a redirect response. Following new location.");
 
+        // Dapatkan lokasi baru dari header "Location"
+        String newLocation = http.header("Location");
+        Serial.print("New location: ");
+        Serial.println(newLocation);
+
+        // Hentikan koneksi saat ini
+        http.end();
+
+        // Buat koneksi baru ke lokasi baru
+        http.begin(newLocation);
+        httpResponseCode = http.GET();
+      }
       if (httpResponseCode > 0) {
         Serial.print("HTTP Response code: ");
         Serial.println(httpResponseCode);
-        payload = http.getString();
+
+        // Baca respons dari server
+        String response = http.getString();
+        Serial.println("Response: " + response);
       } else {
-        Serial.print("Error code: ");
+        Serial.print("HTTP Request failed. Error code: ");
         Serial.println(httpResponseCode);
       }
       // Free resources
@@ -967,11 +939,11 @@ void loop() {
       Serial.println(serverName2);
 
 
-    } else if (menuOption == 5) {
-      delay(1000);
+    } else if (menuOption == 4) {
       while (customAll) {
         display_jam_awal();
-
+        // Penambahan deteksi_gerak dan delay diganti 200
+        deteksi_gerak();
         if (digitalRead(BUTTON_ATAS) == LOW || digitalRead(BUTTON_BAWAH) == LOW) {
           break;
 
@@ -979,12 +951,69 @@ void loop() {
           //CONDITION  OR FALSE
         }
       }
+      delay(200);
     }
-
     Serial.println(menuOption);
   }
-
   x0++;
+}
+
+void cek_jadwal() {
+
+  HTTPClient http;
+
+  const char* serverName = "http://192.168.43.76:3000/cek_jadwal";
+  String sensorReadings;
+  //float sensorReadingsArr[3];
+
+  sensorReadings = httpGETRequest(serverName);
+  Serial.println(sensorReadings);
+  JSONVar myObject = JSON.parse(sensorReadings);
+
+  // JSON.typeof(jsonVar) can be used to get the type of the var
+  if (JSON.typeof(myObject) == "undefined") {
+    Serial.println("Parsing input failed!");
+    return;
+  }
+
+  Serial.print("JSON object = ");
+  Serial.println(myObject);
+
+  // myObject.keys() can be used to get an array of all the keys in the object
+
+  Serial.print("stat:");
+  Serial.println(myObject[0]["json_response"]);
+  Serial.println(myObject);
+
+  
+  String stat = myObject[0]["json_response"];
+
+  if (stat== "1") {
+
+
+     digitalWrite(buzzerPin, HIGH);
+      delay(800);
+      digitalWrite(buzzerPin, LOW);
+      delay(800);
+      
+       digitalWrite(buzzerPin, HIGH);
+      delay(800);
+      digitalWrite(buzzerPin, LOW);
+      delay(800);
+      
+
+    display.clearDisplay();
+
+    display.setCursor(25, 50);
+    display.print("WAKTUNYA UNTUK :");
+      display.display();
+  
+  // Now you can parse the JSON response
+  // Use a JSON parsing library or manual parsing based on the structure of your JSON
+}
+http.end();
+
+
 }
 
 
@@ -1011,21 +1040,112 @@ void deteksi_gerak() {
     int modeValueAcc = calculateMode(sensorDataAcc, dataSizeAcc);
 
 
+
     Serial.print("Modus dari data Acc adalah: ");
     Serial.println(modeValueAcc);
 
+
+    int nomor;
+    String keterangan;
     if (modeValueAcc >= 20) {
       Serial.println("Anda Banyak bergerak dengan gerakan yang aktif");
+      nomor = 3;
+      keterangan = "Aktif";
     } else if (modeValueAcc >= 11 && modeValueAcc < 20) {
       Serial.println("Anda Lumayan banyak bergerak bergerak tapi harus ditingkatkan");
+      nomor = 2;
+      keterangan = "Normal";
 
     } else if (modeValueAcc <= 10) {
       Serial.println("Anda Kurang Gerak!");
+      nomor = 1;
+      keterangan = "Tidak";
     }
+    /////////////
+
+    WiFiClient client;
+    HTTPClient http;
+    String serverName3 = "https://node-heart-prasetyoians.vercel.app/sendAkselo";
+    // url += "?hr=70&spo2=96&akselox=1&akseloy=2&akseloz=1&suhu=36";
+    serverName3 += "?modus=" + String(modeValueAcc) + "&nomor=" + String(nomor);
+    // String serverName2 = "https://node-heart-prasetyoians.vercel.app/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
+
+    Serial.print("Sending GET request to: ");
+    Serial.println(serverName3);
+
+
+    // Your Domain name with URL path or IP address with path
+    http.begin(serverName3);
+
+
+    // If you need Node-RED/server authentication, insert user and password below
+    //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+
+    // Send HTTP POST request
+    int httpResponseCode = http.GET();
+
+    // String payload = "{}";
+    if (httpResponseCode == 308) {
+      Serial.println("Received a redirect response. Following new location.");
+
+      // Dapatkan lokasi baru dari header "Location"
+      String newLocation = http.header("Location");
+      Serial.print("New location: ");
+      Serial.println(newLocation);
+
+      // Hentikan koneksi saat ini
+      http.end();
+
+      // Buat koneksi baru ke lokasi baru
+      http.begin(newLocation);
+      httpResponseCode = http.GET();
+    }
+    if (httpResponseCode > 0) {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+
+      // Baca respons dari server
+      String response = http.getString();
+      Serial.println("Response: " + response);
+    } else {
+      Serial.print("HTTP Request failed. Error code: ");
+      Serial.println(httpResponseCode);
+    }
+    // Free resources
+    http.end();
+
+    Serial.println(serverName3);
+
+    ////////////
+    // WiFiClient client3;
+    // HTTPClient http3;
+    // String serverName3 = "https://node-heart-prasetyoians.vercel.app/sendAkselo?modus=" + String(modeValueAcc) + "&nomor=" + String(nomor);
+    // // Your Domain name with URL path or IP address with path
+    // http3.begin(client3, serverName3);
+
+    // // If you need Node-RED/server authentication, insert user and password below
+    // //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+
+    // // Send HTTP POST request
+    // int httpResponseCode3 = http3.GET();
+    // Serial.println(httpResponseCode3);
+
+    // String payload3 = "{}";
+
+
+    // // Free resources
+    // http3.end();
+
+    // Serial.println(serverName3);
   }
 
 
+
   if (x0 == SIZEMPU) {
+
+
+
+
 
     sensorDataAcc[SIZEMPU] = {};
     x0 = 0;
@@ -1033,6 +1153,7 @@ void deteksi_gerak() {
   // x0++;
   //delay(1000);  // Sesuaikan delay sesuai kebutuhan
 }
+
 
 
 void resetArray(int arr[], int size) {
