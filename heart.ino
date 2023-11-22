@@ -886,10 +886,11 @@ void loop() {
       display.display();
 
       WiFiClient client;
-      HTTPClient http;
+      HTTPClient http;      
       String serverName2 = "https://node-heart-prasetyoians.vercel.app/senddatatosps";
+      String enc = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtYSI6ImlhbiIsImlhdCI6MTUxNjIzOTAyMn0.433M2X-k55i05iqwf0RPZXAy7oc3vKfIEcruSqMOUs8";
       // url += "?hr=70&spo2=96&akselox=1&akseloy=2&akseloz=1&suhu=36";
-      serverName2 += "?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
+      serverName2 += "?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus)+ "&encoded=" + String(enc);
       // String serverName2 = "https://node-heart-prasetyoians.vercel.app/senddatatosps?hr=" + String(modeValueHeart) + "&spo2=" + String(modeValueOxy) + "&akselox=" + String(a.acceleration.x) + "&akseloy=" + String(a.acceleration.y) + "&akseloz=" + String(a.acceleration.z) + "&suhu=" + String(suhus);
 
       Serial.print("Sending GET request to: ");
